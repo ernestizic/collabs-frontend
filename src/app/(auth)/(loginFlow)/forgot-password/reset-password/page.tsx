@@ -69,7 +69,7 @@ const ResetPasswordPage = () => {
 			</div>
 
 			<Form {...form}>
-				<form onSubmit={form.handleSubmit(onSubmit)} className="w-[400px] mx-auto">
+				<form onSubmit={form.handleSubmit(onSubmit)} className="max-w-[400px] mx-auto">
 					<div className="space-y-8">
 						<FormField
 							control={form.control}

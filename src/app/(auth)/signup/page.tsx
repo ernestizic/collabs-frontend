@@ -50,7 +50,7 @@ const SignupPage = () => {
 	};
 	return (
 		<div className="h-full max-2xl:my-10 flex items-center justify-center pr-4 2xl:pr-8">
-			<div className="w-3/4 2xl:w-2/4">
+			<div className="lg:w-3/4 2xl:w-2/4">
 				<div className="mb-10">
 					<p className="text-4xl font-bold mb-[6px]">
 						Let&apos;s get you set up

@@ -42,7 +42,7 @@ const LoginPage = () => {
 		console.log(values);
 	};
 	return (
-		<div className="bg-gradient-to-b from-[#eec8fc] to-[#ffffff] w-[450px] rounded-2xl shadow-2xl p-8">
+		<div className="lg:bg-gradient-to-b from-[#eec8fc] to-[#ffffff] w-full lg:w-[450px] rounded-2xl lg:shadow-2xl p-4 lg:p-8">
 			<div className="flex flex-col items-center gap-4">
 				<div className="border bg-[#fff] size-[50px] flex items-center justify-center rounded-2xl">
 					<LogIn />

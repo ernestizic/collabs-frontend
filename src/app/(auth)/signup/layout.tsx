@@ -2,8 +2,8 @@ const SignupLayout = ({ children }: { children: React.ReactNode }) => {
 	const icons = ["📊", "📈", "📉", "🔗", "📊", "📈", "📉", "🔗", "📧"];
 	return (
 		<div className="bg-[#fff] h-screen flex p-4 2xl:p-8">
-			<div className="w-[40%] h-full overflow-auto">{children}</div>
-			<div className="flex-1 flex items-center justify-center bg-gradient-to-b from-[#20012f] to-[#f5b2e9] border-6 border-[#20012f] rounded-4xl text-white">
+			<div className="w-full lg:w-[40%] lg:h-full lg:overflow-auto">{children}</div>
+			<div className="hidden flex-1 lg:flex items-center justify-center bg-gradient-to-b from-[#20012f] to-[#f5b2e9] border-6 border-[#20012f] rounded-4xl text-white">
 				<div className="w-3/4 text-center">
 					<span className="block h-[2px] w-[300px] bg-[#fff] mx-auto mb-8" />
 					<p className="text-3xl font-semibold mb-[4px]">
