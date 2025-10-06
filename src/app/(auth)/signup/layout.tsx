@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 const SignupLayout = ({ children }: { children: React.ReactNode }) => {
 	const icons = ["📊", "📈", "📉", "🔗", "📊", "📈", "📉", "🔗", "📧"];
 	return (
@@ -13,8 +15,10 @@ const SignupLayout = ({ children }: { children: React.ReactNode }) => {
 
 					<div className="overflow-hidden h-[270px] relative flex items-center justify-center">
 						{/* Center Circle */}
-						<div className="size-20 mt-40 rounded-full bg-[#B79785] flex items-center justify-center shadow-xl z-10">
-							<span className="text-4xl text-white">🧑‍🤝‍🧑</span>
+						<div className="size-20 mt-40 rounded-full bg-[#fff] flex items-center justify-center shadow-xl z-10">
+							<span className="rounded-full overflow-hidden size-[50px] flex items-center justify-center">
+								<Image src="/collaboration-icon.png" alt="Collaboration" width={50} height={50} />
+							</span>
 						</div>
 
 						{/* Orbit Container */}

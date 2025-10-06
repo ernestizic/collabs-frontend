@@ -21,8 +21,10 @@ import {
 	InputGroupButton,
 	InputGroupInput,
 } from "@/components/ui/input-group";
+import { useRouter } from "next/navigation";
 
 const LoginPage = () => {
+	const router = useRouter();
 	const [showPassword, setShowPassword] = useState<boolean>(false);
 
 	const formSchema = z.object({
@@ -40,6 +42,7 @@ const LoginPage = () => {
 
 	const handleSubmit = (values: z.infer<typeof formSchema>) => {
 		console.log(values);
+		router.push("/dashboard")
 	};
 	return (
 		<div className="lg:bg-gradient-to-b from-[#eec8fc] to-[#ffffff] w-full lg:w-[450px] rounded-2xl lg:shadow-2xl p-4 lg:p-8">
