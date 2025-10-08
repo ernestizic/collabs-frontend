@@ -23,8 +23,12 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { usePathname, useRouter } from "next/navigation";
 
 const KanbanBoard = () => {
+	const pathname = usePathname();
+	const router = useRouter();
+
 	return (
 		<div className="h-full min-w-[350px] w-[350px] rounded-2xl bg-accent p-[16px] flex flex-col">
 			<div className="flex flex-col gap-2 pb-2">
@@ -41,6 +45,7 @@ const KanbanBoard = () => {
 									className="size-[28px]"
 									variant="ghost"
 									aria-label="Add task to this column"
+									onClick={() => router.push(`${pathname}/create?column=${1}`)}
 								>
 									<Plus />
 								</Button>

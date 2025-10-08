@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+@import "react-day-picker/style.css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -126,4 +127,9 @@ button {
   body {
     @apply bg-background text-foreground;
   }
+}
+
+.rdp-root {
+  --rdp-accent-color: indigo;
+  --rdp-accent-background-color: #f0f0f0;
 }

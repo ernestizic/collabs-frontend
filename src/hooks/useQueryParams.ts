@@ -91,6 +91,18 @@ export function useQueryParams() {
     [searchParams, updateParams]
   );
 
+  // Remove a single param
+  const removeMultipleParams = useCallback(
+    (keys: string[]) => {
+      const newParams = new URLSearchParams(searchParams.toString());
+      keys.forEach(element => {
+        newParams.delete(element);
+      });
+      updateParams(newParams);
+    },
+    [searchParams, updateParams]
+  );
+
   // Add a value to a multi-value param (e.g. tag=react → tag=react&tag=js)
   const addValue = useCallback(
     (key: string, value: string) => {
@@ -141,6 +153,7 @@ export function useQueryParams() {
     setParam, // set or update key
     setParams, // set multiple keys
     removeParam, // remove key entirely
+    removeMultipleParams,
     addValue, // append to a multi-value key
     removeValue, // remove specific value from multi-key
     redirectWithParams, // redirect to a new path with params

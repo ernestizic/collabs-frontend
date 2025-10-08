@@ -4,6 +4,8 @@ import z from "zod";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { zodResolver } from "@hookform/resolvers/zod";
+import dayjs from "dayjs";
+import localizedFormat from "dayjs/plugin/localizedFormat";
 import {
 	Form,
 	FormControl,
@@ -20,12 +22,21 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Settings } from "lucide-react";
+import { CalendarCog, Settings } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
+import Datepicker from "@/components/global/Datepicker";
+import { useState } from "react";
+dayjs.extend(localizedFormat);
 
 const CreateTaskPage = () => {
+	const [showStartDateSelect, setShowStartDateSelect] =
+		useState<boolean>(false);
+	const [showEndDateSelect, setShowEndDateSelect] = useState<boolean>(false);
+	const [startDate, setStartDate] = useState<Date>();
+	const [endDate, setEndDate] = useState<Date>();
+
 	const formSchema = z.object({
 		title: z
 			.string()
@@ -131,7 +142,7 @@ const CreateTaskPage = () => {
 						</DropdownMenu>
 						<div className="px-1">
 							No one -{" "}
-							<Button variant="link" className="no-underline! py-0 px-4 h-auto">
+							<Button variant="link" className="py-0 px-4 h-auto">
 								Assign yourself
 							</Button>
 						</div>
@@ -178,46 +189,66 @@ const CreateTaskPage = () => {
 						<div className="px-1">No label</div>
 					</div>
 
-					<div className="text-sm flex flex-col py-2 gap-2">
-						<DropdownMenu modal={false}>
+					<div className="text-sm border-b flex flex-col py-2 gap-2">
+						<DropdownMenu
+							modal={false}
+							open={showStartDateSelect}
+							onOpenChange={setShowStartDateSelect}
+						>
 							<DropdownMenuTrigger asChild>
 								<Button
 									variant="ghost"
 									className="w-full h-[32px] justify-between px-1!"
 								>
-									Due date <Settings />
+									Start date <CalendarCog />
 								</Button>
 							</DropdownMenuTrigger>
-							<DropdownMenuContent className="min-w-[300px] py-2 px-3 border border-black/30">
-								<header className="text-sm font-semibold">
-									Assign up to 10 people to this task
-								</header>
-								<DropdownMenuSeparator />
-
-								<div className="mt-3 flex flex-col gap-2">
-									{Array.from({ length: 3 }).map((item, idx) => (
-										<Label
-											key={idx}
-											className="flex items-center gap-4 has-[[aria-checked=true]]:bg-blue-50 py-1 px-2"
-										>
-											<Checkbox
-												id={`toggle-${idx}`}
-												className="data-[state=checked]:border-blue-600 data-[state=checked]:bg-blue-600 data-[state=checked]:text-white dark:data-[state=checked]:border-blue-700 dark:data-[state=checked]:bg-blue-700"
-											/>
-											<div className="flex items-center gap-2">
-												<Avatar className="size-6">
-													<AvatarImage src="https://github.com/shadcn.png" />
-													<AvatarFallback>CN</AvatarFallback>
-												</Avatar>
-												ernestizic
-											</div>
-										</Label>
-									))}
-								</div>
+							<DropdownMenuContent className="min-w-[300px]">
+								<Datepicker
+									mode="single"
+									selectedDate={startDate}
+									setSelectedDate={(date) => {
+										setStartDate(date);
+										setShowStartDateSelect(false);
+									}}
+								/>
 							</DropdownMenuContent>
 						</DropdownMenu>
 
-						<div className="px-1">Not set</div>
+						<div className="px-1">
+							{startDate ? dayjs(startDate).format("LL") : "Not set"}
+						</div>
+					</div>
+
+					<div className="text-sm flex flex-col py-2 gap-2">
+						<DropdownMenu
+							modal={false}
+							open={showEndDateSelect}
+							onOpenChange={setShowEndDateSelect}
+						>
+							<DropdownMenuTrigger asChild>
+								<Button
+									variant="ghost"
+									className="w-full h-[32px] justify-between px-1!"
+								>
+									End date <CalendarCog />
+								</Button>
+							</DropdownMenuTrigger>
+							<DropdownMenuContent className="min-w-[300px] py-2 px-3 border border-black/30">
+								<Datepicker
+									mode="single"
+									selectedDate={endDate}
+									setSelectedDate={(date) => {
+										setEndDate(date);
+										setShowEndDateSelect(false);
+									}}
+								/>
+							</DropdownMenuContent>
+						</DropdownMenu>
+
+						<div className="px-1">
+							{endDate ? dayjs(endDate).format("LL") : "Not set"}
+						</div>
 					</div>
 				</div>
 			</div>

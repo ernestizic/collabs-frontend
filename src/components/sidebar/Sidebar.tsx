@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import {
 	FileCheck,
 	FolderClosed,
@@ -12,6 +11,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useParams, usePathname } from "next/navigation";
+import Image from "next/image";
 
 const menuRoutes = [
 	{
@@ -42,18 +42,14 @@ const Sidebar = () => {
 	return (
 		<div className="w-[272px] h-screen bg-accent fixed top-0 flex flex-col">
 			<div className="py-[24px] px-[16px]">
-				<div className="border border-border-custom p-[12px] rounded-lg flex items-center gap-4">
-					<Avatar>
-						<AvatarImage src="https://github.com/shadcn.png" />
-						<AvatarFallback>CN</AvatarFallback>
-					</Avatar>
-					<div className="w-full truncate">
-						<p className="truncate text-xl font-semibold">
-							Ifeanyichukwu Isaac
-						</p>
-						<p className="truncate text-sm">ieifeanyichukwu@gmail.com</p>
-					</div>
-				</div>
+				<Link href="/">
+					<Image
+						src="/default-monochrome.svg"
+						alt="logo"
+						width={160}
+						height={50}
+					/>
+				</Link>
 			</div>
 
 			<div className="flex-1 overflow-auto px-[16px]">
@@ -79,7 +75,6 @@ const Sidebar = () => {
 				<ul className="mt-[10px] flex flex-col gap-2">
 					<li>
 						<Link href="/dashboard" className="flex items-center gap-2 p-2">
-							{/* {item.icon} */}
 							<Target size={18} /> All Projects
 						</Link>
 					</li>

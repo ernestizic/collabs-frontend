@@ -1,14 +1,18 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { useQueryParams } from "@/hooks/useQueryParams";
 import {
 	CalendarFold,
 	Ellipsis,
 	FlagTriangleRight,
 	MessagesSquare,
 } from "lucide-react";
+import { usePathname } from "next/navigation";
 
 const TaskCard = () => {
+	const pathname = usePathname();
+	const { redirectWithParams, localParamState } = useQueryParams();
 	return (
 		<div className="bg-white p-[8px] rounded border">
 			<div className="flex items-center justify-between mb-2">
@@ -34,7 +38,19 @@ const TaskCard = () => {
 					<Ellipsis />
 				</Button>
 			</div>
-			<p className="font-semibold mb-[3px] truncate">This is the task title</p>
+			<Button
+				onClick={() =>
+					redirectWithParams(pathname, {
+						...localParamState,
+						pane: "task",
+						taskId: "352r754358",
+					})
+				}
+				variant="link"
+				className="font-semibold mb-[3px] truncate hover:underline hover:text-primary p-0 h-auto"
+			>
+				This is the task title
+			</Button>
 			<p className="text-sm text-black/70 truncate">
 				This is the task description
 			</p>

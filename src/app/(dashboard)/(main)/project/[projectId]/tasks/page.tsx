@@ -7,7 +7,8 @@ import { Plus, UserRoundPlus } from "lucide-react";
 import Header from "./_components/Header";
 import { TaskView, TaskViewKey } from "./types";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import KanbanView from "./_components/KanbanView";
+import KanbanView from "./_components/views/kanban/KanbanView";
+import TaskDetail from "./_components/taskDetail/TaskDetail";
 
 const TaskPage = () => {
 	const pathname = usePathname();
@@ -23,8 +24,8 @@ const TaskPage = () => {
 			<div className="px-[24px]">
 				<div className="flex items-center gap-16 justify-between h-[120px]">
 					<div className="truncate">
-						<header className="text-3xl font-semibold mb-2">Tasks</header>
-						<p className="truncate">A short description will be placed here</p>
+						<header className="text-3xl font-semibold mb-2">Collabs</header>
+						<p className="truncate">A real-time collaboration and project management tool.</p>
 					</div>
 
 					<div className="flex items-center gap-4">
@@ -62,6 +63,8 @@ const TaskPage = () => {
 			<div className="px-[24px] py-[16px] h-[calc(100vh-234px)]">
 				{activeView === "kanban" && <KanbanView />}
 			</div>
+
+			<TaskDetail />
 		</div>
 	);
 };
