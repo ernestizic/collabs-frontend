@@ -60,7 +60,7 @@ const TaskPage = () => {
 				<Header view={activeView} setView={setActiveView} />
 			</div>
 
-			<div className="px-[24px] py-[16px] h-[calc(100vh-234px)]">
+			<div className="px-[24px] py-[16px] h-[calc(100vh-235px)]">
 				{activeView === "kanban" && <KanbanView />}
 			</div>
 

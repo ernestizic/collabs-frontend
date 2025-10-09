@@ -24,8 +24,18 @@ import {
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { usePathname, useRouter } from "next/navigation";
+import { BoardType } from "../../../types";
 
-const KanbanBoard = () => {
+interface BoardInterface {
+	board: BoardType;
+	handleMoveLeft: (board: BoardType) => void;
+	handleMoveRight: (board: BoardType) => void;
+}
+const KanbanBoard = ({
+	board,
+	handleMoveRight,
+	handleMoveLeft,
+}: BoardInterface) => {
 	const pathname = usePathname();
 	const router = useRouter();
 
@@ -34,9 +44,12 @@ const KanbanBoard = () => {
 			<div className="flex flex-col gap-2 pb-2">
 				<div className="flex items-center justify-between">
 					<div className="flex items-center gap-2">
-						<span className="size-[8px] rounded-full block bg-[#2016d6]" />
-						<span className="font-semibold text-gray-700">In Progress</span>
-						<Badge className="bg-primary/20 text-black">0/4</Badge>
+						<span
+							style={{ backgroundColor: board.color_identifier }}
+							className="size-[8px] rounded-full block"
+						/>
+						<span className="font-semibold text-gray-700">{board.name}</span>
+						<Badge className="bg-primary/8 text-black">0/4</Badge>
 					</div>
 					<div className="flex gap-2">
 						<Tooltip>
@@ -96,19 +109,23 @@ const KanbanBoard = () => {
 								<DropdownMenuLabel className="text-[#000]/60">
 									Position
 								</DropdownMenuLabel>
-								<DropdownMenuItem className="text-base">
+								<DropdownMenuItem
+									className="text-base"
+									onClick={() => handleMoveLeft(board)}
+								>
 									<ArrowLeft /> Move left
 								</DropdownMenuItem>
-								<DropdownMenuItem className="text-base">
+								<DropdownMenuItem
+									className="text-base"
+									onClick={() => handleMoveRight(board)}
+								>
 									<ArrowRight /> Move right
 								</DropdownMenuItem>
 							</DropdownMenuContent>
 						</DropdownMenu>
 					</div>
 				</div>
-				<p className="text-sm text-[#000]/60">
-					This item hasn&apos;t been started
-				</p>
+				<p className="text-sm text-[#000]/60">{board.description}</p>
 			</div>
 
 			<div className="flex-1 overflow-auto flex flex-col gap-2">
