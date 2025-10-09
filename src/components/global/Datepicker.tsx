@@ -1,4 +1,10 @@
-import { DateRange, DayPicker, Mode, OnSelectHandler } from "react-day-picker";
+import {
+	DateRange,
+	DayPicker,
+	Mode,
+	OnSelectHandler,
+	Matcher,
+} from "react-day-picker";
 
 interface IDatepicker {
 	selectedDate?: Date;
@@ -6,6 +12,7 @@ interface IDatepicker {
 	mode: Mode;
 	selectedRange?: DateRange;
 	onSelectRange?: OnSelectHandler<DateRange>;
+	disabled?: Matcher | Matcher[]
 }
 const Datepicker = ({
 	selectedDate,
@@ -13,6 +20,7 @@ const Datepicker = ({
 	mode,
 	selectedRange,
 	onSelectRange,
+	disabled,
 }: IDatepicker) => {
 	if (mode === "range") {
 		return (
@@ -33,7 +41,7 @@ const Datepicker = ({
 
 	return (
 		<DayPicker
-			disabled={{ before: new Date() }}
+			disabled={disabled}
 			required
 			mode={mode}
 			navLayout="around"

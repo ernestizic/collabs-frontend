@@ -1,12 +1,24 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuPortal,
+	DropdownMenuSub,
+	DropdownMenuSubContent,
+	DropdownMenuSubTrigger,
+	DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { useQueryParams } from "@/hooks/useQueryParams";
 import {
+	ArrowRightLeft,
 	CalendarFold,
 	Ellipsis,
 	FlagTriangleRight,
 	MessagesSquare,
+	Trash2,
 } from "lucide-react";
 import { usePathname } from "next/navigation";
 
@@ -29,14 +41,37 @@ const TaskCard = () => {
 					Ticket #1
 				</div>
 
-				<Button
-					className="size-[28px]"
-					variant="ghost"
-					aria-label="More options"
-					title="More options"
-				>
-					<Ellipsis />
-				</Button>
+				<DropdownMenu modal={false}>
+					<DropdownMenuTrigger asChild>
+						<Button
+							className="size-[28px]"
+							variant="ghost"
+							aria-label="More options"
+							title="More options"
+						>
+							<Ellipsis />
+						</Button>
+					</DropdownMenuTrigger>
+					<DropdownMenuContent>
+						<DropdownMenuSub>
+							<DropdownMenuSubTrigger className="text-base">
+								<ArrowRightLeft /> Move to column
+							</DropdownMenuSubTrigger>
+							<DropdownMenuPortal>
+								<DropdownMenuSubContent>
+									<DropdownMenuItem>Backlog</DropdownMenuItem>
+									<DropdownMenuItem>In progress</DropdownMenuItem>
+									<DropdownMenuItem>In review</DropdownMenuItem>
+									<DropdownMenuItem>Done</DropdownMenuItem>
+								</DropdownMenuSubContent>
+							</DropdownMenuPortal>
+						</DropdownMenuSub>
+
+						<DropdownMenuItem variant="destructive" className="text-base">
+							<Trash2 /> Delete
+						</DropdownMenuItem>
+					</DropdownMenuContent>
+				</DropdownMenu>
 			</div>
 			<Button
 				onClick={() =>

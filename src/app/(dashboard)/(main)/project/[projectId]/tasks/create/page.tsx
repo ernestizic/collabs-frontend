@@ -19,6 +19,7 @@ import { cn } from "@/lib/utils";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
+	DropdownMenuItem,
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
@@ -28,6 +29,7 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import Datepicker from "@/components/global/Datepicker";
 import { useState } from "react";
+import { taskPriorityList } from "@/utils/constants";
 dayjs.extend(localizedFormat);
 
 const CreateTaskPage = () => {
@@ -36,6 +38,7 @@ const CreateTaskPage = () => {
 	const [showEndDateSelect, setShowEndDateSelect] = useState<boolean>(false);
 	const [startDate, setStartDate] = useState<Date>();
 	const [endDate, setEndDate] = useState<Date>();
+	const [priority, setPriority] = useState<string>("");
 
 	const formSchema = z.object({
 		title: z
@@ -155,6 +158,44 @@ const CreateTaskPage = () => {
 									variant="ghost"
 									className="w-full h-[32px] justify-between px-1!"
 								>
+									Priority <Settings />
+								</Button>
+							</DropdownMenuTrigger>
+							<DropdownMenuContent className="min-w-[300px] py-2 px-3 border border-black/30">
+								<header className="text-sm font-semibold">
+									Select task priority
+								</header>
+								<DropdownMenuSeparator />
+
+								<div className="mt-3 flex flex-col gap-2">
+									{taskPriorityList.map((item, idx) => (
+										<DropdownMenuItem
+											key={idx}
+											className="text-base capitalize"
+											onClick={() => setPriority(item.title)}
+										>
+											<span
+												style={{ border: `3px solid ${item.color}` }}
+												className="rounded-full block size-[15px]"
+											/>
+											{item.title}
+										</DropdownMenuItem>
+									))}
+								</div>
+							</DropdownMenuContent>
+						</DropdownMenu>
+						<div className="px-1 capitalize">
+							{priority ?? "Not set"}
+						</div>
+					</div>
+
+					<div className="text-sm border-b flex flex-col py-2 gap-2">
+						<DropdownMenu modal={false}>
+							<DropdownMenuTrigger asChild>
+								<Button
+									variant="ghost"
+									className="w-full h-[32px] justify-between px-1!"
+								>
 									Labels <Settings />
 								</Button>
 							</DropdownMenuTrigger>
@@ -211,6 +252,7 @@ const CreateTaskPage = () => {
 										setStartDate(date);
 										setShowStartDateSelect(false);
 									}}
+									disabled={{ before: new Date() }}
 								/>
 							</DropdownMenuContent>
 						</DropdownMenu>
@@ -242,6 +284,7 @@ const CreateTaskPage = () => {
 										setEndDate(date);
 										setShowEndDateSelect(false);
 									}}
+									disabled={{ before: new Date() }}
 								/>
 							</DropdownMenuContent>
 						</DropdownMenu>

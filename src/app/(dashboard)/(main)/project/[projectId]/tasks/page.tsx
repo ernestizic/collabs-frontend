@@ -3,12 +3,13 @@
 import { useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Plus, UserRoundPlus } from "lucide-react";
+import { Plus } from "lucide-react";
 import Header from "./_components/Header";
 import { TaskView, TaskViewKey } from "./types";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import KanbanView from "./_components/views/kanban/KanbanView";
 import TaskDetail from "./_components/taskDetail/TaskDetail";
+import TeamModal from "@/components/team/TeamModal";
 
 const TaskPage = () => {
 	const pathname = usePathname();
@@ -25,7 +26,9 @@ const TaskPage = () => {
 				<div className="flex items-center gap-16 justify-between h-[120px]">
 					<div className="truncate">
 						<header className="text-3xl font-semibold mb-2">Collabs</header>
-						<p className="truncate">A real-time collaboration and project management tool.</p>
+						<p className="truncate">
+							A real-time collaboration and project management tool.
+						</p>
 					</div>
 
 					<div className="flex items-center gap-4">
@@ -52,9 +55,7 @@ const TaskPage = () => {
 						>
 							<Plus /> Create Task
 						</Button>
-						<Button>
-							<UserRoundPlus /> Invite Member
-						</Button>
+						<TeamModal />
 					</div>
 				</div>
 				<Header view={activeView} setView={setActiveView} />
