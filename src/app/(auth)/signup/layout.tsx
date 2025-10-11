@@ -41,7 +41,6 @@ const SignupLayout = ({ children }: { children: React.ReactNode }) => {
 								);
 							})}
 						</div>
-						{/* Bottom Fade */}
 						<div className="max-2xl:hidden absolute bottom-0 w-full h-24 bg-gradient-to-t from-[#b578b5] via-[#b578b5]/5 to-transparent pointer-events-none" />
 					</div>
 				</div>

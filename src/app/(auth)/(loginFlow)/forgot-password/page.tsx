@@ -20,8 +20,14 @@ import {
 	InputGroupInput,
 } from "@/components/ui/input-group";
 import { usePathname, useRouter } from "next/navigation";
+import { sendResetPasswordCode } from "@/utils/api/auth";
+import { toast } from "sonner";
+import { AxiosError } from "axios";
+import { ApiError } from "@/utils/types";
+import { useState } from "react";
 
 const ForgotPasswordPage = () => {
+	const [isLoading, setIsLoading] = useState(false);
 	const pathname = usePathname();
 	const router = useRouter();
 	const formSchema = z.object({
@@ -35,11 +41,19 @@ const ForgotPasswordPage = () => {
 		},
 	});
 
-	const handleSubmit = (values: z.infer<typeof formSchema>) => {
-		console.log(values);
-		router.push(
-			`${pathname}/verify-reset-code?email=${encodeURI(values.email)}`
-		);
+	const handleSubmit = async (values: z.infer<typeof formSchema>) => {
+		setIsLoading(true);
+		try {
+			const data = await sendResetPasswordCode(values.email);
+			toast.success(data.message ?? "An Email has been sent!");
+			router.push(
+				`${pathname}/verify-reset-code?email=${encodeURI(values.email)}`
+			);
+		} catch (err) {
+			setIsLoading(false);
+			const error = err as AxiosError<ApiError>;
+			toast.error(error.response?.data.message ?? "An error occurred");
+		}
 	};
 
 	return (
@@ -86,7 +100,7 @@ const ForgotPasswordPage = () => {
 						)}
 					/>
 
-					<Button type="submit" className="w-full">
+					<Button type="submit" className="w-full" loading={isLoading}>
 						Send code
 					</Button>
 				</form>

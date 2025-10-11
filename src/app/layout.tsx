@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Albert_Sans } from "next/font/google";
 import "./globals.css";
+import { Toaster } from "@/components/ui/sonner";
 
 const albertSans = Albert_Sans({
   subsets: ["latin"],
@@ -23,6 +24,7 @@ export default function RootLayout({
         className={`${albertSans.className} antialiased`}
       >
         {children}
+        <Toaster richColors   />
       </body>
     </html>
   );

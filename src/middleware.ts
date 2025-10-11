@@ -1,16 +1,30 @@
-import { NextResponse, NextRequest } from "next/server";
+import { NextResponse, type NextRequest } from "next/server";
 
-export function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl;
-  
-	// if (pathname === "/project") {
-  //   console.log(request);
-	// 	return NextResponse.redirect(new URL("/project/1/tasks", request.url));
-	// }
+export function middleware(req: NextRequest) {
+	const token = req.cookies.get("access_token")?.value;
+	const { pathname } = req.nextUrl;
+	
+	const protectedRoutes = ["/dashboard", "/create-project", "/project"];
+	const authRoutes = ["/login", "/signup", "/forgot-password"];
+
+	if (!token && protectedRoutes.some((route) => pathname.startsWith(route))) {
+		return NextResponse.redirect(new URL("/login", req.url));
+	}
+
+	if (token && authRoutes.some((route) => pathname.startsWith(route))) {
+		return NextResponse.redirect(new URL("/dashboard", req.url));
+	}
 
 	return NextResponse.next();
 }
 
 export const config = {
-	matcher: "/project",
+	matcher: [
+		"/project/:path*",
+		"/dashboard/:path*",
+		"/create-project",
+		"/login",
+		"/signup",
+		"/forgot-password/:path*",
+	],
 };

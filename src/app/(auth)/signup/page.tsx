@@ -22,8 +22,17 @@ import {
 	InputGroupInput,
 } from "@/components/ui/input-group";
 import { Input } from "@/components/ui/input";
+import { useRouter } from "next/navigation";
+import { signup } from "@/utils/api/auth";
+import { ApiError } from "@/utils/types";
+import { toast } from "sonner";
+import { AxiosError } from "axios";
+import { useUser } from "@/store";
 
 const SignupPage = () => {
+	const { setUser } = useUser();
+	const [isLoading, setIsLoading] = useState(false);
+	const router = useRouter();
 	const [showPassword, setShowPassword] = useState<boolean>(false);
 
 	const formSchema = z.object({
@@ -31,7 +40,7 @@ const SignupPage = () => {
 			.string()
 			.min(2, "Firstname should be at least 2 character long"),
 		lastname: z.string().min(2, "Lastname should be at least 2 character long"),
-		email: z.email().min(1, "Email is required"),
+		email: z.email("Invalid email").min(1, "Email is required"),
 		password: z.string().min(8, "Password must be at least 8 characters"),
 	});
 
@@ -45,8 +54,20 @@ const SignupPage = () => {
 		},
 	});
 
-	const handleSubmit = (values: z.infer<typeof formSchema>) => {
-		console.log(values);
+	const handleSubmit = async (values: z.infer<typeof formSchema>) => {
+		setIsLoading(true);
+		try {
+			const data = await signup(values);
+			setIsLoading(false);
+			setUser(data.data);
+			router.push("/verify-email");
+		} catch (error) {
+			setIsLoading(false);
+			const apiError = error as AxiosError<ApiError>;
+			toast.error(apiError.response?.data?.message || apiError.message, {
+				position: "bottom-left",
+			});
+		}
 	};
 	return (
 		<div className="h-full max-2xl:my-10 flex items-center justify-center pr-4 2xl:pr-8">
@@ -114,6 +135,7 @@ const SignupPage = () => {
 											<InputGroup>
 												<InputGroupInput
 													type={showPassword ? "text" : "password"}
+													autoComplete="off"
 													{...field}
 												/>
 												<InputGroupAddon>
@@ -133,7 +155,12 @@ const SignupPage = () => {
 								)}
 							/>
 						</div>
-						<Button type="submit" className="w-full mt-8 h-10">
+						<Button
+							type="submit"
+							className="w-full mt-8 h-10"
+							loading={isLoading}
+							disabled={!form.formState.isValid || isLoading}
+						>
 							Submit
 						</Button>
 					</form>
@@ -141,7 +168,9 @@ const SignupPage = () => {
 
 				<p className="text-center mt-4">
 					Already have an account?{" "}
-					<Link href="/login" className="underline">Login instead</Link>
+					<Link href="/login" className="underline">
+						Login instead
+					</Link>
 				</p>
 			</div>
 		</div>

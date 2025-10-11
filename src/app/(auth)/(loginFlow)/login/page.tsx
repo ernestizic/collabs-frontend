@@ -22,13 +22,20 @@ import {
 	InputGroupInput,
 } from "@/components/ui/input-group";
 import { useRouter } from "next/navigation";
+import { useUser } from "@/store";
+import { toast } from "sonner";
+import { AxiosError } from "axios";
+import { ApiError } from "@/utils/types";
+import { login } from "@/utils/api/auth";
 
 const LoginPage = () => {
+	const [isLoading, setIsLoading] = useState(false);
+	const { setUser } = useUser();
 	const router = useRouter();
 	const [showPassword, setShowPassword] = useState<boolean>(false);
 
 	const formSchema = z.object({
-		email: z.email().min(1, "Email is required"),
+		email: z.email("Invalid email").min(1, "Email is required"),
 		password: z.string().min(8, "Password must be at least 8 characters"),
 	});
 
@@ -40,9 +47,19 @@ const LoginPage = () => {
 		},
 	});
 
-	const handleSubmit = (values: z.infer<typeof formSchema>) => {
-		console.log(values);
-		router.push("/dashboard")
+	const onSubmit = async (values: z.infer<typeof formSchema>) => {
+		setIsLoading(true);
+
+		try {
+			const data = await login(values);
+			setIsLoading(false);
+			setUser(data.data);
+			router.push("/dashboard");
+		} catch (error) {
+			setIsLoading(false);
+			const apiError = error as AxiosError<ApiError>;
+			toast.error(apiError.response?.data?.message || apiError.message);
+		}
 	};
 	return (
 		<div className="lg:bg-gradient-to-b from-[#eec8fc] to-[#ffffff] w-full lg:w-[450px] rounded-2xl lg:shadow-2xl p-4 lg:p-8">
@@ -62,7 +79,7 @@ const LoginPage = () => {
 			</div>
 
 			<Form {...form}>
-				<form onSubmit={form.handleSubmit(handleSubmit)}>
+				<form onSubmit={form.handleSubmit(onSubmit)}>
 					<div className="space-y-8">
 						<FormField
 							control={form.control}
@@ -97,6 +114,7 @@ const LoginPage = () => {
 											<InputGroupInput
 												type={showPassword ? "text" : "password"}
 												placeholder="Password"
+												autoComplete="off"
 												{...field}
 											/>
 											<InputGroupAddon>
@@ -122,7 +140,12 @@ const LoginPage = () => {
 					>
 						Forgot password?
 					</Link>
-					<Button type="submit" className="w-full mt-8 h-10">
+					<Button
+						type="submit"
+						className="w-full mt-8 h-10"
+						loading={isLoading}
+						disabled={!form.formState.isValid || isLoading}
+					>
 						Submit
 					</Button>
 				</form>

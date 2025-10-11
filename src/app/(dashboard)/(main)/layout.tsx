@@ -3,7 +3,7 @@ import Sidebar from "@/components/sidebar/Sidebar";
 
 const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
 	return (
-		<div className="">
+		<div>
 			<Sidebar />
 
 			<div className="ml-[272px]">

@@ -5,7 +5,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Eye, EyeOff, Lock } from "lucide-react";
+import { Eye, EyeOff, Lock, MoveLeft } from "lucide-react";
 import {
 	Form,
 	FormControl,
@@ -20,9 +20,19 @@ import {
 	InputGroupButton,
 	InputGroupInput,
 } from "@/components/ui/input-group";
-import { useRouter } from "next/navigation";
+import { redirect, useRouter, useSearchParams } from "next/navigation";
+import Link from "next/link";
+import { toast } from "sonner";
+import { resetPassword } from "@/utils/api/auth";
+import { AxiosError } from "axios";
+import { ApiError } from "@/utils/types";
 
 const ResetPasswordPage = () => {
+	const searchParams = useSearchParams();
+	const email = searchParams.get("email");
+	const code = searchParams.get("code");
+
+	const [isLoading, setIsLoading] = useState(false);
 	const [showPassword, setShowPassword] = useState<boolean>(false);
 	const [showConfirmPassword, setShowConfirmPassword] =
 		useState<boolean>(false);
@@ -49,10 +59,26 @@ const ResetPasswordPage = () => {
 		},
 	});
 
-	const onSubmit = (values: z.infer<typeof formSchema>) => {
-		console.log(values);
-		router.push("/login");
+	const onSubmit = async (values: z.infer<typeof formSchema>) => {
+		if (!email || !code) return;
+		setIsLoading(true);
+		const resetPasswordData = {
+			email,
+			code,
+			password: values.password,
+		};
+		try {
+			const data = await resetPassword(resetPasswordData);
+			toast.success(data.message ?? "Password reset successful");
+			router.push(`/login`);
+		} catch (err) {
+			setIsLoading(false);
+			const error = err as AxiosError<ApiError>;
+			toast.error(error.response?.data.message ?? "An error occurred");
+		}
 	};
+
+	if (!email || !code) redirect("/forgot-password");
 
 	return (
 		<div>
@@ -69,7 +95,10 @@ const ResetPasswordPage = () => {
 			</div>
 
 			<Form {...form}>
-				<form onSubmit={form.handleSubmit(onSubmit)} className="max-w-[400px] mx-auto">
+				<form
+					onSubmit={form.handleSubmit(onSubmit)}
+					className="max-w-[400px] mx-auto"
+				>
 					<div className="space-y-8">
 						<FormField
 							control={form.control}
@@ -82,6 +111,7 @@ const ResetPasswordPage = () => {
 											<InputGroupInput
 												type={showPassword ? "text" : "password"}
 												placeholder="Password"
+												autoComplete="off"
 												{...field}
 											/>
 											<InputGroupAddon align="inline-end">
@@ -108,6 +138,7 @@ const ResetPasswordPage = () => {
 											<InputGroupInput
 												type={showConfirmPassword ? "text" : "password"}
 												placeholder="Confirm your password"
+												autoComplete="off"
 												{...field}
 											/>
 											<InputGroupAddon align="inline-end">
@@ -126,11 +157,25 @@ const ResetPasswordPage = () => {
 							)}
 						/>
 					</div>
-					<Button type="submit" className="w-full mt-8 h-10">
+					<Button
+						type="submit"
+						className="w-full mt-8 h-10"
+						disabled={!form.formState.isValid || isLoading}
+						loading={isLoading}
+					>
 						Submit
 					</Button>
 				</form>
 			</Form>
+
+			<div className="text-center">
+				<Link
+					href={`/forgot-password/verify-reset-code?email=ilo@yopmail.com`}
+					className="inline-flex items-center justify-center gap-4 mt-6"
+				>
+					<MoveLeft /> Resend code
+				</Link>
+			</div>
 		</div>
 	);
 };

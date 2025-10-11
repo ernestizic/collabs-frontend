@@ -1,8 +1,7 @@
 "use client";
 
 import z from "zod";
-import { MailIcon, MoveLeft } from "lucide-react";
-import Link from "next/link";
+import { MailIcon } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -20,22 +19,19 @@ import {
 	InputOTPSeparator,
 	InputOTPSlot,
 } from "@/components/ui/input-otp";
-import { redirect, useRouter, useSearchParams } from "next/navigation";
-import { useMemo } from "react";
+import { useRouter } from "next/navigation";
+import { resendEmailVerificationCode, verifyEmail } from "@/utils/api/auth";
+import { useUser } from "@/store";
+import { toast } from "sonner";
+import { ApiError } from "@/utils/types";
+import { AxiosError } from "axios";
+import { useState } from "react";
 
-const VerifyResetPasswordCodePage = () => {
+const VerifyEmailPage = () => {
+	const { user, setUser } = useUser();
 	const router = useRouter();
-	const searchParam = useSearchParams();
-	const email = searchParam.get("email");
-
-	const maskedEmail = useMemo(() => {
-		if (!email) return;
-		const atIndex = email.indexOf("@");
-		const username = email.slice(0, 3);
-		const domain = email.slice(atIndex);
-		const restOfUsername = email.slice(3, atIndex);
-		return `${username}${`*`.repeat(restOfUsername.length)} ${domain}`;
-	}, [email]);
+	const [isSending, setIsSending] = useState(false);
+	const [isSubmitting, setIsSubmitting] = useState(false);
 
 	const formSchema = z.object({
 		code: z
@@ -51,14 +47,38 @@ const VerifyResetPasswordCodePage = () => {
 		},
 	});
 
-	const handleSubmit = async (values: z.infer<typeof formSchema>) => {
-		router.push(
-			`/forgot-password/reset-password?email=${email}&code=${values.code}`
-		);
+	const handleResend = async () => {
+		if (!user) return;
+		setIsSending(true);
+		try {
+			const data = await resendEmailVerificationCode({ email: user?.email });
+			toast.success(data.message);
+			setIsSending(false);
+		} catch (error) {
+			setIsSending(false);
+			const err = error as AxiosError<ApiError>;
+			toast.error(
+				err.response?.data.message || "An error occurred. Try again!"
+			);
+		}
 	};
 
-	if (!email) redirect("/forgot-password");
-
+	const handleSubmit = async (values: z.infer<typeof formSchema>) => {
+		if (!user) return;
+		setIsSubmitting(true);
+		try {
+			const data = await verifyEmail({ ...values, email: user?.email });
+			toast.success(data.message);
+			setUser({...user, email_verified_at: new Date()})
+			router.push(`/dashboard`);
+		} catch (error) {
+			setIsSubmitting(false);
+			const err = error as AxiosError<ApiError>;
+			toast.error(
+				err.response?.data.message || "An error occurred. Try again!"
+			);
+		}
+	};
 	return (
 		<div className="text-center">
 			<div className="flex flex-col items-center gap-4 mb-8">
@@ -66,10 +86,7 @@ const VerifyResetPasswordCodePage = () => {
 					<MailIcon />
 				</div>
 				<div>
-					<p className="text-3xl font-semibold mb-[6px]">Check your email</p>
-					<p className="text-[14px] text-neutral-600">
-						Input the code that was sent to {maskedEmail}
-					</p>
+					<p className="text-3xl font-semibold mb-[6px]">Verify your email</p>
 				</div>
 			</div>
 
@@ -106,26 +123,29 @@ const VerifyResetPasswordCodePage = () => {
 						)}
 					/>
 
-					<Button type="submit" className="w-full h-[52px] text-base mt-8">
+					<Button
+						loading={isSubmitting}
+						disabled={!form.formState.isValid || isSending || isSubmitting}
+						type="submit"
+						className="w-full h-[52px] text-base mt-8"
+					>
 						Submit
 					</Button>
 				</form>
 			</Form>
 			<p className="text-[14px] my-4">
 				Didn&apos;t get any code?{" "}
-				<button type="button" className="text-primary font-semibold">
+				<button
+					type="button"
+					className="text-primary font-semibold"
+					onClick={handleResend}
+					disabled={isSending || isSubmitting}
+				>
 					Click to resend
 				</button>
 			</p>
-
-			<Link
-				href="/login"
-				className="inline-flex items-center justify-center gap-4 mt-6"
-			>
-				<MoveLeft /> Back to login
-			</Link>
 		</div>
 	);
 };
 
-export default VerifyResetPasswordCodePage;
+export default VerifyEmailPage;

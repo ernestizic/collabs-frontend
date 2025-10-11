@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import {
 	Select,
@@ -10,9 +10,26 @@ import {
 // import Searchbar from "../globalSearch/Searchbar";
 import Notification from "../notification/Notification";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
+import { Button } from "../ui/button";
+import Link from "next/link";
+import { logout } from "@/utils/api/auth";
+import { useUser } from "@/store";
+import { Separator } from "../ui/separator";
+import { LogOut, Settings } from "lucide-react";
 
 const MainHeader = () => {
+	const { user, clearUser } = useUser();
 
+	const handleLogout = async () => {
+		try {
+			await logout();
+			clearUser();
+			window.location.replace("/login");
+		} catch (error) {
+			console.log(error)
+		}
+	};
 	return (
 		<div className="h-[72px] fixed z-10 top-0 w-[calc(100%-272px)] bg-white border-b flex items-center justify-between px-[24px]">
 			<div className="flex items-center">
@@ -34,18 +51,43 @@ const MainHeader = () => {
 			</div>
 			<div className="flex items-center gap-10">
 				<Notification />
-				<button className="px-[12px] rounded-lg flex items-center gap-4">
-					<Avatar>
-						<AvatarImage src="https://github.com/shadcn.png" />
-						<AvatarFallback>CN</AvatarFallback>
-					</Avatar>
-					<div className="w-full truncate text-left">
-						<p className="truncate text-lg font-semibold">
-							Ifeanyichukwu Isaac
-						</p>
-						<p className="truncate text-sm">ieifeanyichukwu@gmail.com</p>
-					</div>
-				</button>
+
+				<Popover>
+					<PopoverTrigger asChild>
+						<button className="px-[12px] rounded-lg flex items-center gap-4">
+							<Avatar>
+								<AvatarImage src="https://github.com/shadcn.png" />
+								<AvatarFallback>CN</AvatarFallback>
+							</Avatar>
+
+							<div className="w-full truncate text-left">
+								<p className="truncate text-lg font-semibold">
+									{user?.firstname} {user?.lastname}
+								</p>
+								<p className="truncate text-sm">{user?.email}</p>
+							</div>
+						</button>
+					</PopoverTrigger>
+					<PopoverContent className="border-2 py-4 px-[6px]">
+						<header className="mb-4 text-sm text-gray-800">Profile menu</header>
+						<Separator className="my-1" />
+						<div className="flex flex-col gap-2">
+							<Link
+								href="/dashboard/settings"
+								className="h-[40px] [&_svg]:shrink-0 px-2 flex items-center hover:bg-accent rounded-md gap-2"
+							>
+								<Settings size={18} /> Settings
+							</Link>
+							<Button
+								variant="ghost"
+								className="h-[40px] justify-start"
+								onClick={handleLogout}
+							>
+								<LogOut /> Logout
+							</Button>
+						</div>
+					</PopoverContent>
+				</Popover>
 			</div>
 		</div>
 	);
