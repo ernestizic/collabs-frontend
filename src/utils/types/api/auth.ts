@@ -26,3 +26,7 @@ export interface ResetPasswordPayload {
 export interface CreateUserResponse extends ApiMeta {
 	data: User;
 }
+
+export interface GetUserResponse extends ApiMeta {
+	user: User;
+}

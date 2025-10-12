@@ -52,7 +52,6 @@ const LoginPage = () => {
 
 		try {
 			const data = await login(values);
-			setIsLoading(false);
 			setUser(data.data);
 			router.push("/dashboard");
 		} catch (error) {

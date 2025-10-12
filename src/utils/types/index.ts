@@ -17,3 +17,10 @@ export type ApiError = {
 	message: string | string[];
 	statusCode: number;
 };
+
+export type PaginationType = {
+	total: number;
+	currentPage: number;
+	itemsPerPage: number;
+	totalPages: number;
+};

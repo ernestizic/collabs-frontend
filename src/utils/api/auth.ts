@@ -2,6 +2,7 @@ import { axiosInstance } from "@/lib/axios";
 import {
 	CreateUserPayload,
 	CreateUserResponse,
+	GetUserResponse,
 	ResetPasswordPayload,
 	SignInPayload,
 	verifyEmailPayload,
@@ -32,7 +33,7 @@ export const login = async (
 
 export const verifyEmail = async (
 	payload: verifyEmailPayload
-): Promise<ApiMeta> => {
+): Promise<CreateUserResponse> => {
 	try {
 		const res = await axiosInstance.post(`auth/verify-code`, payload);
 		return res.data;
@@ -80,6 +81,15 @@ export const resetPassword = async (
 export const logout = async () => {
 	try {
 		const res = await axiosInstance.post<ApiMeta>(`auth/logout`);
+		return res.data;
+	} catch (error) {
+		return Promise.reject(error);
+	}
+};
+
+export const getAuthenticatedUser = async () => {
+	try {
+		const res = await axiosInstance.get<GetUserResponse>(`auth/me`);
 		return res.data;
 	} catch (error) {
 		return Promise.reject(error);

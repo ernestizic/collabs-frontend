@@ -1,6 +1,6 @@
 import ClientHydrationBoundary from "@/components/global/ClientHydrationBoundary";
 
-const ProtectedLayout = ({ children }: { children: React.ReactNode }) => {
+const ProtectedLayout = async({ children }: { children: React.ReactNode }) => {
 	return <ClientHydrationBoundary>{children}</ClientHydrationBoundary>;
 };
 

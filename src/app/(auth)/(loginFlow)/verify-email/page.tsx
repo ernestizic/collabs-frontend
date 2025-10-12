@@ -68,9 +68,9 @@ const VerifyEmailPage = () => {
 		setIsSubmitting(true);
 		try {
 			const data = await verifyEmail({ ...values, email: user?.email });
+			setUser(data.data);
 			toast.success(data.message);
-			setUser({...user, email_verified_at: new Date()})
-			router.push(`/dashboard`);
+			router.push(`/`);
 		} catch (error) {
 			setIsSubmitting(false);
 			const err = error as AxiosError<ApiError>;
@@ -137,7 +137,7 @@ const VerifyEmailPage = () => {
 				Didn&apos;t get any code?{" "}
 				<button
 					type="button"
-					className="text-primary font-semibold"
+					className="text-primary font-semibold disabled:opacity-50"
 					onClick={handleResend}
 					disabled={isSending || isSubmitting}
 				>

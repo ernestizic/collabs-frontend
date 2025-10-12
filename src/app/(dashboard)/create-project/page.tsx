@@ -14,11 +14,18 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useRouter } from "next/navigation";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { createProject } from "@/utils/api/project";
+import { AxiosError } from "axios";
+import { ApiError } from "@/utils/types";
+import { toast } from "sonner";
+import { queryKeys } from "@/lib/queryKeys";
 
 const CreateProjectPage = () => {
+	const queryClient = useQueryClient();
 	const router = useRouter();
 	const formSchema = z.object({
-		name: z.string().min(2, "Project name should be at least 2 character long"),
+		name: z.string(),
 		description: z
 			.string()
 			.max(600, "You have exceeded the max length for this field"),
@@ -31,9 +38,22 @@ const CreateProjectPage = () => {
 		},
 	});
 
+	const createProjectMutation = useMutation({
+		mutationFn: createProject,
+		onSuccess(data) {
+			queryClient.invalidateQueries({ queryKey: queryKeys.projects });
+			router.push(`/project/${data.data.id}/tasks`);
+		},
+		onError(error) {
+			const err = error as AxiosError<ApiError>;
+			toast.error(
+				err.response?.data.message ?? "Unable to create project. Try again"
+			);
+		},
+	});
+
 	const handleSubmit = (values: z.infer<typeof formSchema>) => {
-		console.log(values);
-		router.push("/project")
+		createProjectMutation.mutate(values);
 	};
 	return (
 		<div className="h-screen flex items-center justify-center">
@@ -76,7 +96,11 @@ const CreateProjectPage = () => {
 								)}
 							/>
 						</div>
-						<Button type="submit" className="w-full mt-8 h-10">
+						<Button
+							type="submit"
+							className="w-full mt-8 h-10"
+							loading={createProjectMutation.isPending}
+						>
 							Submit
 						</Button>
 					</form>

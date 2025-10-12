@@ -15,6 +15,7 @@ import {
 	PopoverTrigger,
 } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
+import { useQueryClient } from "@tanstack/react-query";
 
 const ProjectDashboardLayout = ({
 	children,
@@ -22,11 +23,13 @@ const ProjectDashboardLayout = ({
 	children: React.ReactNode;
 }) => {
 	const { user, clearUser } = useUser();
+	const queryClient = useQueryClient()
 
 	const handleLogout = async () => {
 		try {
 			await logout();
 			clearUser();
+			queryClient.clear(); 
 			window.location.replace("/login");
 		} catch (error) {
 			console.log(error);

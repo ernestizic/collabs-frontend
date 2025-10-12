@@ -58,7 +58,6 @@ const SignupPage = () => {
 		setIsLoading(true);
 		try {
 			const data = await signup(values);
-			setIsLoading(false);
 			setUser(data.data);
 			router.push("/verify-email");
 		} catch (error) {

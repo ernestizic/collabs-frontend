@@ -10,8 +10,10 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import KanbanView from "./_components/views/kanban/KanbanView";
 import TaskDetail from "./_components/taskDetail/TaskDetail";
 import TeamModal from "@/components/team/TeamModal";
+import { useProject } from "@/store/useProject";
 
 const TaskPage = () => {
+	const { activeProject } = useProject();
 	const pathname = usePathname();
 	const router = useRouter();
 	const param = useSearchParams();
@@ -25,10 +27,10 @@ const TaskPage = () => {
 			<div className="px-[24px]">
 				<div className="flex items-center gap-16 justify-between h-[120px]">
 					<div className="truncate">
-						<header className="text-3xl font-semibold mb-2">Collabs</header>
-						<p className="truncate">
-							A real-time collaboration and project management tool.
-						</p>
+						<header className="text-3xl font-semibold mb-2">
+							{activeProject?.name}
+						</header>
+						<p className="truncate">{activeProject?.description}</p>
 					</div>
 
 					<div className="flex items-center gap-4">

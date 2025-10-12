@@ -24,7 +24,9 @@ export const useUser = create<State & Actions>()(
 			...initState,
 			setUser: (user) => set(() => ({ user: user })),
 			setHasHydrated: (state) => set({ hasHydrated: state }),
-			clearUser: () => set({ user: null }),
+			clearUser: () => {
+				set(() => ({ user: null }));
+			},
 		}),
 		{
 			name: "collabs-user",
