@@ -20,21 +20,20 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { createColumn } from "@/utils/api/project";
+import { updateColumn } from "@/utils/api/project";
 import { queryKeys } from "@/lib/queryKeys";
 import { toast } from "sonner";
 import { AxiosError } from "axios";
 import { ApiError } from "@/utils/types";
-import { CreateColumnPayload } from "@/utils/types/api/project";
+import { Column, UpdateColumnPayload } from "@/utils/types/api/project";
 import { useProject } from "@/store/useProject";
-import { useParams } from "next/navigation";
 
 interface CreateColumnProps {
 	onClose: () => void;
+	column: Column;
 }
-const CreateColumn = ({ onClose }: CreateColumnProps) => {
+const EditColumnModal = ({ onClose, column }: CreateColumnProps) => {
 	const { activeProject } = useProject();
-	const { projectId } = useParams();
 	const queryClient = useQueryClient();
 
 	const formSchema = z.object({
@@ -48,31 +47,30 @@ const CreateColumn = ({ onClose }: CreateColumnProps) => {
 	const form = useForm<z.infer<typeof formSchema>>({
 		resolver: zodResolver(formSchema),
 		defaultValues: {
-			title: "",
-			description: "",
-			color: "#999",
+			title: column.name ?? "",
+			description: column.description ?? "",
+			color: column.identifier ?? "#999",
 		},
 	});
 
 	const closeModal = () => {
-		onClose()
+		onClose();
 		form.reset();
 	};
 
-	const createProjectMutation = useMutation({
-		mutationFn: (payload: CreateColumnPayload) => createColumn(payload),
+	const updateColumnMutation = useMutation({
+		mutationFn: (updateColumnPayload: UpdateColumnPayload) =>
+			updateColumn(column.id, updateColumnPayload),
 		onSuccess() {
+			onClose();
 			queryClient.invalidateQueries({
-				queryKey: queryKeys.projectBoards(
-					activeProject?.id ?? Number(projectId)
-				),
+				queryKey: queryKeys.projectBoards(activeProject?.id as number),
 			});
-			closeModal();
 		},
 		onError(error) {
 			const err = error as AxiosError<ApiError>;
 			toast.error(
-				err.response?.data.message ?? "Unable to create column. Try again"
+				err.response?.data.message ?? "Unable to update limit. Try again"
 			);
 		},
 	});
@@ -83,18 +81,18 @@ const CreateColumn = ({ onClose }: CreateColumnProps) => {
 			description: values.description,
 			identifier: values.color,
 		};
-		createProjectMutation.mutate(createColumnPayload);
+		updateColumnMutation.mutate(createColumnPayload);
 	};
 
 	return (
 		<Dialog open onOpenChange={closeModal}>
 			<DialogContent showCloseButton={false} className="">
-				<DialogTitle className="sr-only">Create Column</DialogTitle>
+				<DialogTitle className="sr-only">Update Column</DialogTitle>
 				<DialogDescription className="sr-only">
-					Modal with a form for creating a column on the Kanban
+					Modal with a form for updating the details of a column
 				</DialogDescription>
 				<div className="flex items-center justify-between">
-					<header className="text-xl font-semibold">Create Column</header>
+					<header className="text-xl font-semibold">Update Column</header>
 					<Button variant="outline" onClick={closeModal}>
 						<X />
 					</Button>
@@ -176,7 +174,7 @@ const CreateColumn = ({ onClose }: CreateColumnProps) => {
 						<Button
 							type="submit"
 							className="w-full mt-8 h-10"
-							loading={createProjectMutation.isPending}
+							loading={updateColumnMutation.isPending}
 						>
 							Submit
 						</Button>
@@ -187,4 +185,4 @@ const CreateColumn = ({ onClose }: CreateColumnProps) => {
 	);
 };
 
-export default CreateColumn;
+export default EditColumnModal;

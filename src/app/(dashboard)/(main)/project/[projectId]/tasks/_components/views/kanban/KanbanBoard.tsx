@@ -24,18 +24,20 @@ import {
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { usePathname, useRouter } from "next/navigation";
-import { BoardType } from "../../../types";
+import { Column } from "@/utils/types/api/project";
+import { useModal } from "@/hooks/useModal";
 
 interface BoardInterface {
-	board: BoardType;
-	handleMoveLeft: (board: BoardType) => void;
-	handleMoveRight: (board: BoardType) => void;
+	board: Column;
+	handleMoveLeft: (board: Column) => void;
+	handleMoveRight: (board: Column) => void;
 }
 const KanbanBoard = ({
 	board,
 	handleMoveRight,
 	handleMoveLeft,
 }: BoardInterface) => {
+	const { openModal } = useModal();
 	const pathname = usePathname();
 	const router = useRouter();
 
@@ -45,11 +47,13 @@ const KanbanBoard = ({
 				<div className="flex items-center justify-between">
 					<div className="flex items-center gap-2">
 						<span
-							style={{ backgroundColor: board.color_identifier }}
+							style={{ backgroundColor: board.identifier ?? "#000" }}
 							className="size-[8px] rounded-full block"
 						/>
 						<span className="font-semibold text-gray-700">{board.name}</span>
-						<Badge className="bg-primary/8 text-black">0/4</Badge>
+						<Badge className="bg-primary/8 text-black">
+							0{board.column_limit && `/${board.column_limit}`}
+						</Badge>
 					</div>
 					<div className="flex gap-2">
 						<Tooltip>
@@ -96,15 +100,29 @@ const KanbanBoard = ({
 								<DropdownMenuLabel className="text-[#000]/60">
 									Column
 								</DropdownMenuLabel>
-								<DropdownMenuItem className="text-base">
+								<DropdownMenuItem
+									className="text-base"
+									onClick={() => openModal("setLimitModal", { column: board })}
+								>
 									<ArrowUp10 /> Set limit
 								</DropdownMenuItem>
-								<DropdownMenuItem className="text-base">
+								<DropdownMenuItem
+									className="text-base"
+									onClick={() => openModal("updateColumnModal", { column: board })}
+								>
 									<PencilLine /> Edit details
 								</DropdownMenuItem>
-								<DropdownMenuItem variant="destructive" className="text-base">
+
+								<DropdownMenuItem
+									variant="destructive"
+									className="text-base"
+									onClick={() =>
+										openModal("deleteColumnPrompt", { columnId: board.id })
+									}
+								>
 									<Trash2 /> Delete
 								</DropdownMenuItem>
+
 								<DropdownMenuSeparator />
 								<DropdownMenuLabel className="text-[#000]/60">
 									Position
@@ -129,9 +147,9 @@ const KanbanBoard = ({
 			</div>
 
 			<div className="flex-1 overflow-auto flex flex-col gap-2">
-				{Array.from({ length: 2 }).map((item, idx) => (
+				{/* {Array.from({ length: 2 }).map((item, idx) => (
 					<TaskCard key={idx} />
-				))}
+				))} */}
 			</div>
 		</div>
 	);

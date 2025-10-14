@@ -11,9 +11,17 @@ import KanbanView from "./_components/views/kanban/KanbanView";
 import TaskDetail from "./_components/taskDetail/TaskDetail";
 import TeamModal from "@/components/team/TeamModal";
 import { useProject } from "@/store/useProject";
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { useUser } from "@/store";
 
+const colors = ["#e6de0f", "#6d9e9b", "#ed9e9e"];
 const TaskPage = () => {
 	const { activeProject } = useProject();
+	const { user } = useUser();
 	const pathname = usePathname();
 	const router = useRouter();
 	const param = useSearchParams();
@@ -35,20 +43,29 @@ const TaskPage = () => {
 
 					<div className="flex items-center gap-4">
 						<div className="*:data-[slot=avatar]:ring-background flex -space-x-2 *:data-[slot=avatar]:ring-2 *:data-[slot=avatar]:grayscale">
-							{Array.from({ length: 6 })
-								.slice(0, 3)
-								.map((_, idx) => (
-									<Avatar key={idx}>
-										<AvatarImage
-											src="https://github.com/shadcn.png"
-											alt="@shadcn"
-										/>
-										<AvatarFallback>CN</AvatarFallback>
-									</Avatar>
-								))}
-							<div className="size-8 border-2 border-white rounded-full flex items-center justify-center bg-light-grey text-sm font-semibold z-1">
-								+1
-							</div>
+							{activeProject?.collaborators.slice(0, 3).map((member, idx) => (
+								<Tooltip key={idx}>
+									<TooltipTrigger>
+										<Avatar key={idx}>
+											<AvatarImage src="https://github.com" alt="@shadcn" />
+											<AvatarFallback
+												className="text-sm font-semibold"
+												style={{ background: colors[idx] }}
+											>
+												{member.user.firstname.charAt(0)}
+											</AvatarFallback>
+										</Avatar>
+									</TooltipTrigger>
+									<TooltipContent side="bottom">
+										{member.userId === user?.id ? "You" : member.user.firstname}
+									</TooltipContent>
+								</Tooltip>
+							))}
+							{activeProject && activeProject?.collaborators.length > 3 && (
+								<div className="size-9 border-2 border-white rounded-full flex items-center justify-center bg-light-grey text-sm font-semibold z-1">
+									+{activeProject?.collaborators.length - 1}
+								</div>
+							)}
 						</div>
 
 						<Button

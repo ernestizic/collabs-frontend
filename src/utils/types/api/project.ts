@@ -6,15 +6,7 @@ export interface CreateProjectPayload {
 }
 
 export interface CreateProjectResponse extends ApiMeta {
-	data: {
-		name: string;
-		description: string | null;
-		isOpen: boolean;
-		id: number;
-		createdAt: Date;
-		updatedAt: Date;
-		ownerId: number;
-	};
+	data: Omit<Project, "collaborators">;
 }
 
 export interface ProjectsResponse extends ApiMeta {
@@ -26,6 +18,10 @@ export interface ProjectsResponse extends ApiMeta {
 
 export interface GetProjectResponse extends ApiMeta {
 	data: Project;
+}
+
+export interface GetColumnsResponse extends ApiMeta {
+	data: Column[];
 }
 
 export interface Collaborator {
@@ -48,4 +44,30 @@ export interface Project {
 	updatedAt: Date;
 	ownerId: number;
 	collaborators: Collaborator[];
+}
+
+export interface Column {
+	id: string;
+	name: string;
+	description: string | null;
+	position: number;
+	identifier: string | null;
+	column_limit: number | null;
+	projectId: number;
+}
+
+export interface CreateColumnPayload {
+	name: string;
+	description?: string;
+	identifier: string;
+}
+export interface CreateColumnResponse extends ApiMeta {
+	data: Column;
+}
+
+export interface UpdateColumnPayload {
+	name?: string;
+	description?: string;
+	identifier?: string;
+	column_limit?: number;
 }

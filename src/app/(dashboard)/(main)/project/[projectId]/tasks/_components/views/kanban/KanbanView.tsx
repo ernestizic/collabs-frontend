@@ -1,43 +1,36 @@
 import KanbanBoard from "./KanbanBoard";
-import CreateColumn from "./CreateColumn";
-import { BoardType } from "../../../types";
 import { useState } from "react";
-
-const boards = [
-	{
-		id: "1",
-		name: "Backlog",
-		description: "This item is yet to start",
-		position: 1,
-		color_identifier: "#1f6feb",
-	},
-	{
-		id: "2",
-		name: "In progress",
-		description: "This is actively being worked on",
-		position: 2,
-		color_identifier: "#9e6a03",
-	},
-	{
-		id: "3",
-		name: "In review",
-		description: "This has is in review",
-		position: 3,
-		color_identifier: "#8957e5",
-	},
-	{
-		id: "4",
-		name: "Done",
-		description: "This has been completed",
-		position: 4,
-		color_identifier: "#238636",
-	},
-];
+import { getColumns } from "@/utils/api/project";
+import { useQuery } from "@tanstack/react-query";
+import { useParams } from "next/navigation";
+import { queryKeys } from "@/lib/queryKeys";
+import { Column } from "@/utils/types/api/project";
+import NoBoardState from "./NoBoardState";
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
+import { useModal } from "@/hooks/useModal";
+import useProjectPusher from "@/hooks/useProjectPusher";
+import { BarLoader } from "react-spinners";
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 const KanbanView = () => {
+	const { openModal } = useModal();
+	const { projectId } = useParams();
+	useProjectPusher(Number(projectId));
+
+	const { isPending, isError, data, error } = useQuery({
+		queryKey: queryKeys.projectBoards(Number(projectId)),
+		queryFn: () => getColumns(Number(projectId)),
+		enabled: !!projectId,
+	});
+	const boards = data?.data ?? [];
 	const [kanbanBoards, setKanbanBoards] = useState(boards);
 
-	const handleMoveLeft = (board: BoardType) => {
+	const handleMoveLeft = (board: Column) => {
 		const currentBoards = [...kanbanBoards];
 
 		const indexOfBoard = currentBoards.findIndex((b) => b.id === board.id);
@@ -66,7 +59,7 @@ const KanbanView = () => {
 		setKanbanBoards(newArr);
 	};
 
-	const handleMoveRight = (board: BoardType) => {
+	const handleMoveRight = (board: Column) => {
 		const currentBoards = [...kanbanBoards];
 		const currentIndex = currentBoards.findIndex((b) => b.id === board.id);
 		if (currentIndex >= currentBoards.length - 1) return;
@@ -85,9 +78,26 @@ const KanbanView = () => {
 		updatedBoards.sort((a, b) => a.position - b.position);
 		setKanbanBoards(updatedBoards);
 	};
+
+	if (isPending) {
+		return (
+			<div className="h-full w-full flex items-center justify-center flex-col">
+				<BarLoader width={150} className="rounded-2xl" />
+				Loading...
+			</div>
+		);
+	}
+
+	if (boards.length < 1 && !isPending) {
+		return (
+			<div>
+				<NoBoardState openModal={() => openModal("createBoardModal")} />
+			</div>
+		);
+	}
 	return (
 		<div className="h-full flex gap-2 overflow-auto">
-			{kanbanBoards.map((item, idx) => (
+			{boards.map((item, idx) => (
 				<KanbanBoard
 					key={idx}
 					board={item}
@@ -95,7 +105,23 @@ const KanbanView = () => {
 					handleMoveRight={handleMoveRight}
 				/>
 			))}
-			<CreateColumn />
+
+			<Tooltip>
+				<TooltipTrigger asChild>
+					<Button
+						variant="outline"
+						aria-label="Add column"
+						onClick={() =>
+							openModal("createBoardModal", { isComing: false, isGoing: true })
+						}
+					>
+						<Plus />
+					</Button>
+				</TooltipTrigger>
+				<TooltipContent side="bottom">
+					Add a new column to the board
+				</TooltipContent>
+			</Tooltip>
 		</div>
 	);
 };
