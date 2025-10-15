@@ -1,6 +1,7 @@
 import { axiosInstance } from "@/lib/axios";
 import { GetUserResponse, ResetPasswordPayload } from "../types/api/auth";
 import { ApiMeta } from "../types";
+import axios from "axios";
 
 export const resendEmailVerificationCode = async (payload: {
 	email: string;
@@ -40,7 +41,7 @@ export const resetPassword = async (
 
 export const logout = async () => {
 	try {
-		const res = await axiosInstance.post<ApiMeta>(`auth/logout`);
+		const res = await axios.post(`/api/logout`);
 		return res.data;
 	} catch (error) {
 		return Promise.reject(error);
