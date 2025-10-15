@@ -54,6 +54,8 @@ export interface Column {
 	identifier: string | null;
 	column_limit: number | null;
 	projectId: number;
+	createdAt: Date;
+	updatedAt: Date;
 }
 
 export interface CreateColumnPayload {

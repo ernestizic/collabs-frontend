@@ -1,5 +1,6 @@
 import { axiosInstance } from "@/lib/axios";
 import {
+	Column,
 	CreateColumnPayload,
 	CreateColumnResponse,
 	CreateProjectPayload,
@@ -87,6 +88,21 @@ export const updateColumn = async (
 	try {
 		const res = await axiosInstance.patch(
 			`projects/${projectId}/column/${columnId}`,
+			payload
+		);
+		return res.data;
+	} catch (error) {
+		return Promise.reject(error);
+	}
+};
+
+export const updateColumnPositions = async (
+	payload: {changed_columns: Column[]}
+): Promise<ApiMeta> => {
+	const projectId = useProject.getState().activeProject?.id;
+	try {
+		const res = await axiosInstance.put(
+			`projects/${projectId}/columns`,
 			payload
 		);
 		return res.data;

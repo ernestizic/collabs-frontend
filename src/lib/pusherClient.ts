@@ -1,8 +1,10 @@
 import axios from "axios";
 import Pusher from "pusher-js";
 
-const app_key = process.env.NEXT_PUBLIC_PUSHER_KEY as string;
-const cluster = process.env.NEXT_PUBLIC_PUSHER_CLUSTER as string;
+// const app_key = process.env.NEXT_PUBLIC_PUSHER_KEY as string;
+// const cluster = process.env.NEXT_PUBLIC_PUSHER_CLUSTER as string;
+const app_key = "";
+const cluster = "";
 
 export const pusher = new Pusher(app_key, {
 	cluster: cluster,

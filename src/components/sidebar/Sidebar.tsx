@@ -3,7 +3,6 @@
 import Link from "next/link";
 import {
 	FileCheck,
-	FolderClosed,
 	ListTodo,
 	MessageCircleMore,
 	NotebookPen,
@@ -12,6 +11,7 @@ import {
 import { cn } from "@/lib/utils";
 import { useParams, usePathname } from "next/navigation";
 import Image from "next/image";
+import { Badge } from "../ui/badge";
 
 const menuRoutes = [
 	{
@@ -23,16 +23,19 @@ const menuRoutes = [
 		title: "Docs",
 		route: "/documents",
 		icon: <FileCheck size={18} />,
+		disabled: true,
 	},
 	{
 		title: "Reports",
 		route: "/reports",
 		icon: <NotebookPen size={18} />,
+		disabled: true,
 	},
 	{
 		title: "Messages",
 		route: "/messages",
 		icon: <MessageCircleMore size={18} />,
+		disabled: true,
 	},
 ];
 const Sidebar = () => {
@@ -59,33 +62,29 @@ const Sidebar = () => {
 						<li key={idx}>
 							<Link
 								href={`/project/${projectId}${item.route}`}
-								className={cn("flex items-center gap-2 p-2", {
+								className={cn("flex items-center gap-2 justify-between p-2", {
 									"border-l-2 border-primary font-semibold [&_svg]:text-primary shadow-sm":
 										pathname.includes(item.route),
+									"pointer-events-none": item.disabled,
 								})}
 							>
-								{item.icon}
-								{item.title}
+								<span className="flex items-center gap-2">
+									{item.icon}
+									{item.title}
+								</span>
+								{item.disabled && (
+									<Badge className="text-[12px] py-0">Coming soon</Badge>
+								)}
 							</Link>
 						</li>
 					))}
 				</ul>
 
-				<header className="text-gray-600 mt-8">Projects</header>
+				<header className="text-gray-600 mt-14">Projects</header>
 				<ul className="mt-[10px] flex flex-col gap-2">
 					<li>
 						<Link href="/dashboard" className="flex items-center gap-2 p-2">
 							<Target size={18} /> All Projects
-						</Link>
-					</li>
-				</ul>
-
-				<header className="text-gray-600 mt-8">Pinned projects</header>
-				<ul className="mt-[10px] flex flex-col gap-2">
-					<li>
-						<Link href="/" className="flex items-center gap-2 p-2">
-							<FolderClosed size={18} />
-							Project name
 						</Link>
 					</li>
 				</ul>

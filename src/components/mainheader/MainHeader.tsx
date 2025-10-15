@@ -77,7 +77,7 @@ const MainHeader = () => {
 						<div className="flex flex-col gap-2">
 							<Link
 								href="/dashboard/settings"
-								className="h-[40px] [&_svg]:shrink-0 px-2 flex items-center hover:bg-accent rounded-md gap-2"
+								className="h-[40px] [&_svg]:shrink-0 px-2 flex items-center hover:bg-accent rounded-md gap-2 pointer-events-none"
 							>
 								<Settings size={18} /> Settings
 							</Link>

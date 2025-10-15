@@ -34,7 +34,6 @@ const useProjectPusher = (projectId: number) => {
 
 			channel.bind("column-updated", (data: Column) => {
 				if (data) {
-					console.log(data);
 					queryClient.invalidateQueries({
 						queryKey: queryKeys.projectBoards(data.projectId),
 					});

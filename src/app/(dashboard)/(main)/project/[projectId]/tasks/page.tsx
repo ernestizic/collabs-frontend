@@ -17,6 +17,8 @@ import {
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useUser } from "@/store";
+import ListView from "./_components/views/list/ListView";
+import TableView from "./_components/views/table/TableView";
 
 const colors = ["#e6de0f", "#6d9e9b", "#ed9e9e"];
 const TaskPage = () => {
@@ -82,6 +84,8 @@ const TaskPage = () => {
 
 			<div className="px-[24px] py-[16px] h-[calc(100vh-235px)]">
 				{activeView === "kanban" && <KanbanView />}
+				{activeView === "list" && <ListView />}
+				{activeView === "table" && <TableView />}
 			</div>
 
 			<TaskDetail />

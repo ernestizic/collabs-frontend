@@ -1,7 +1,7 @@
 import KanbanBoard from "./KanbanBoard";
-import { useState } from "react";
-import { getColumns } from "@/utils/api/project";
-import { useQuery } from "@tanstack/react-query";
+import { useEffect, useMemo, useState } from "react";
+import { getColumns, updateColumnPositions } from "@/utils/api/project";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
 import { queryKeys } from "@/lib/queryKeys";
 import { Column } from "@/utils/types/api/project";
@@ -16,19 +16,26 @@ import {
 	TooltipContent,
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
+import debounce from "lodash.debounce";
+import { AxiosError } from "axios";
+import { ApiError } from "@/utils/types";
+import { toast } from "sonner";
+import ErrorDisplay from "@/components/global/ErrorDisplay";
 
 const KanbanView = () => {
 	const { openModal } = useModal();
 	const { projectId } = useParams();
+	const queryClient = useQueryClient();
 	useProjectPusher(Number(projectId));
 
-	const { isPending, isError, data, error } = useQuery({
+	const { isPending, data, isError, refetch } = useQuery({
 		queryKey: queryKeys.projectBoards(Number(projectId)),
 		queryFn: () => getColumns(Number(projectId)),
 		enabled: !!projectId,
 	});
-	const boards = data?.data ?? [];
-	const [kanbanBoards, setKanbanBoards] = useState(boards);
+
+	const [kanbanBoards, setKanbanBoards] = useState<Column[]>([]);
+	const [OgBoards, setOgBoards] = useState<Column[]>([]);
 
 	const handleMoveLeft = (board: Column) => {
 		const currentBoards = [...kanbanBoards];
@@ -79,6 +86,55 @@ const KanbanView = () => {
 		setKanbanBoards(updatedBoards);
 	};
 
+	const debouncedUpdate = useMemo(() => {
+		const handleUpdateDbRecord = async () => {
+			const changedBoards = kanbanBoards.filter((board) => {
+				const original = OgBoards.find((b) => b.id === board.id);
+				return original && original.position !== board.position;
+			});
+
+			if (changedBoards.length === 0) return;
+			const payload = {
+				changed_columns: changedBoards,
+			};
+			try {
+				const res = await updateColumnPositions(payload);
+				if (res.status) {
+					queryClient.invalidateQueries({
+						queryKey: queryKeys.projectBoards(Number(projectId)),
+					});
+				}
+				toast.success("Columns updated");
+			} catch (error) {
+				setKanbanBoards(OgBoards);
+				const err = error as AxiosError<ApiError>;
+				toast.error(err.response?.data.message ?? "An error occurred");
+			}
+		};
+
+		return debounce(handleUpdateDbRecord, 4000);
+		// eslint-disable-next-line
+	}, [OgBoards, kanbanBoards]);
+
+	useEffect(() => {
+		debouncedUpdate();
+
+		return () => debouncedUpdate.cancel();
+	}, [debouncedUpdate, kanbanBoards]);
+
+	useEffect(() => {
+		setKanbanBoards(data?.data ?? []);
+		setOgBoards(data?.data ?? []);
+	}, [data]);
+
+	if (isError && !isPending) {
+		return (
+			<div className="h-full w-full flex items-center justify-center flex-col">
+				<ErrorDisplay buttonFn={refetch} />
+			</div>
+		);
+	}
+
 	if (isPending) {
 		return (
 			<div className="h-full w-full flex items-center justify-center flex-col">
@@ -88,7 +144,7 @@ const KanbanView = () => {
 		);
 	}
 
-	if (boards.length < 1 && !isPending) {
+	if (kanbanBoards.length < 1 && !isPending) {
 		return (
 			<div>
 				<NoBoardState openModal={() => openModal("createBoardModal")} />
@@ -97,7 +153,7 @@ const KanbanView = () => {
 	}
 	return (
 		<div className="h-full flex gap-2 overflow-auto">
-			{boards.map((item, idx) => (
+			{kanbanBoards.map((item, idx) => (
 				<KanbanBoard
 					key={idx}
 					board={item}
