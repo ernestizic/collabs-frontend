@@ -23,10 +23,9 @@ import {
 } from "@/components/ui/input-group";
 import { Input } from "@/components/ui/input";
 import { useRouter } from "next/navigation";
-import { signup } from "@/utils/api/auth";
 import { ApiError } from "@/utils/types";
 import { toast } from "sonner";
-import { AxiosError } from "axios";
+import axios, { AxiosError } from "axios";
 import { useUser } from "@/store";
 
 const SignupPage = () => {
@@ -57,8 +56,9 @@ const SignupPage = () => {
 	const handleSubmit = async (values: z.infer<typeof formSchema>) => {
 		setIsLoading(true);
 		try {
-			const data = await signup(values);
-			setUser(data.data);
+			const data = await axios.post("/api/sign-up", values);
+			setIsLoading(false);
+			setUser(data.data.data);
 			router.push("/verify-email");
 		} catch (error) {
 			setIsLoading(false);

@@ -20,11 +20,11 @@ import {
 	InputOTPSlot,
 } from "@/components/ui/input-otp";
 import { useRouter } from "next/navigation";
-import { resendEmailVerificationCode, verifyEmail } from "@/utils/api/auth";
+import { resendEmailVerificationCode } from "@/utils/api/auth";
 import { useUser } from "@/store";
 import { toast } from "sonner";
 import { ApiError } from "@/utils/types";
-import { AxiosError } from "axios";
+import axios, { AxiosError } from "axios";
 import { useState } from "react";
 
 const VerifyEmailPage = () => {
@@ -67,9 +67,9 @@ const VerifyEmailPage = () => {
 		if (!user) return;
 		setIsSubmitting(true);
 		try {
-			const data = await verifyEmail({ ...values, email: user?.email });
-			setUser(data.data);
-			toast.success(data.message);
+			const res = await axios.post("/api/verify-email", { ...values, email: user?.email })
+			setUser(res.data.data);
+			toast.success(res.data.message ?? "Email verification successful");
 			router.push(`/`);
 		} catch (error) {
 			setIsSubmitting(false);
@@ -79,6 +79,7 @@ const VerifyEmailPage = () => {
 			);
 		}
 	};
+
 	return (
 		<div className="text-center">
 			<div className="flex flex-col items-center gap-4 mb-8">

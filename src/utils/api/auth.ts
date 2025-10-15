@@ -1,46 +1,6 @@
 import { axiosInstance } from "@/lib/axios";
-import {
-	CreateUserPayload,
-	CreateUserResponse,
-	GetUserResponse,
-	ResetPasswordPayload,
-	SignInPayload,
-	verifyEmailPayload,
-} from "../types/api/auth";
+import { GetUserResponse, ResetPasswordPayload } from "../types/api/auth";
 import { ApiMeta } from "../types";
-
-export const signup = async (
-	payload: CreateUserPayload
-): Promise<CreateUserResponse> => {
-	try {
-		const res = await axiosInstance.post(`auth/signup`, payload);
-		return res.data;
-	} catch (error) {
-		return Promise.reject(error);
-	}
-};
-
-export const login = async (
-	payload: SignInPayload
-): Promise<CreateUserResponse> => {
-	try {
-		const res = await axiosInstance.post(`auth/login`, payload);
-		return res.data;
-	} catch (error) {
-		return Promise.reject(error);
-	}
-};
-
-export const verifyEmail = async (
-	payload: verifyEmailPayload
-): Promise<CreateUserResponse> => {
-	try {
-		const res = await axiosInstance.post(`auth/verify-code`, payload);
-		return res.data;
-	} catch (error) {
-		return Promise.reject(error);
-	}
-};
 
 export const resendEmailVerificationCode = async (payload: {
 	email: string;
