@@ -1,17 +1,22 @@
 import { logout } from "@/utils/api/auth";
 import axios, { AxiosResponse } from "axios";
+import Cookies from "js-cookie";
 
 export const axiosInstance = axios.create({
 	baseURL: process.env.NEXT_PUBLIC_API_BASE_URL,
 	timeout: 10000,
 	headers: { "Content-Type": "application/json", Accept: "application/json" },
-	withCredentials: true
+	// withCredentials: true,
 });
 
 // Add a request interceptor
 axiosInstance.interceptors.request.use(
 	function (config) {
 		// Do something before request is sent
+		const token = Cookies.get("access_token");
+		if (token) {
+			config.headers["Authorization"] = `Bearer ${token}`;
+		}
 		return config;
 	},
 	function (error) {
@@ -31,7 +36,10 @@ axiosInstance.interceptors.response.use(
 		// Any status codes that falls outside the range of 2xx cause this function to trigger
 		// Do something with response error
 
-		if (error.response.status === 401 && window.location.pathname !== "/login") {
+		if (
+			error.response.status === 401 &&
+			window.location.pathname !== "/login"
+		) {
 			// logout
 			logout();
 		}

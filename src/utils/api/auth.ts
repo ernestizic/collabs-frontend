@@ -79,16 +79,18 @@ export const resetPassword = async (
 	}
 };
 
-export const logout = async () => {
+export const logout = () => {
 	const clearUser = useUser.getState().clearUser;
-	try {
-		const res = await axiosInstance.post(`auth/logout`);
-		clearUser();
-		window.location.replace("/login");
-		return res.data;
-	} catch (error) {
-		return Promise.reject(error);
-	}
+	clearUser();
+	window.location.replace("/login");
+	// try {
+	// 	const res = await axiosInstance.post(`auth/logout`);
+	// 	clearUser();
+	// 	window.location.replace("/login");
+	// 	return res.data;
+	// } catch (error) {
+	// 	return Promise.reject(error);
+	// }
 };
 
 export const getAuthenticatedUser = async () => {

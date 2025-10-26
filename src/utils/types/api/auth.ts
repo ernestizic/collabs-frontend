@@ -25,6 +25,7 @@ export interface ResetPasswordPayload {
 
 export interface CreateUserResponse extends ApiMeta {
 	data: User;
+	access_token: string;
 }
 
 export interface GetUserResponse extends ApiMeta {

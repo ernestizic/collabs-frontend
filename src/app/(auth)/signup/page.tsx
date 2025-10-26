@@ -30,7 +30,7 @@ import { useUser } from "@/store";
 import { signup } from "@/utils/api/auth";
 
 const SignupPage = () => {
-	const { setUser } = useUser();
+	const { setUser, setAccessToken } = useUser();
 	const [isLoading, setIsLoading] = useState(false);
 	const router = useRouter();
 	const [showPassword, setShowPassword] = useState<boolean>(false);
@@ -60,6 +60,7 @@ const SignupPage = () => {
 			const data = await signup(values);
 			setIsLoading(false);
 			setUser(data.data);
+			setAccessToken(data.access_token);
 			router.push("/verify-email");
 		} catch (error) {
 			setIsLoading(false);

@@ -28,7 +28,7 @@ import { AxiosError } from "axios";
 import { useState } from "react";
 
 const VerifyEmailPage = () => {
-	const { user, setUser } = useUser();
+	const { user, setUser, setAccessToken } = useUser();
 	const router = useRouter();
 	const [isSending, setIsSending] = useState(false);
 	const [isSubmitting, setIsSubmitting] = useState(false);
@@ -69,6 +69,7 @@ const VerifyEmailPage = () => {
 		try {
 			const data = await verifyEmail({ ...values, email: user?.email })
 			setUser(data.data);
+			setAccessToken(data.access_token);
 			toast.success(data.message ?? "Email verification successful");
 			router.push(`/dashboard`);
 		} catch (error) {

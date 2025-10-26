@@ -30,7 +30,7 @@ import { login } from "@/utils/api/auth";
 
 const LoginPage = () => {
 	const [isLoading, setIsLoading] = useState(false);
-	const { setUser } = useUser();
+	const { setUser, setAccessToken } = useUser();
 	const router = useRouter();
 	const [showPassword, setShowPassword] = useState<boolean>(false);
 
@@ -54,6 +54,7 @@ const LoginPage = () => {
 			const data = await login(values);
 			setIsLoading(false);
 			setUser(data.data);
+			setAccessToken(data.access_token);
 			router.push("/dashboard");
 		} catch (error) {
 			setIsLoading(false);
