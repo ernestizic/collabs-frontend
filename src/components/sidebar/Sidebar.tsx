@@ -45,12 +45,13 @@ const Sidebar = () => {
 	return (
 		<div className="w-[272px] h-screen bg-accent fixed top-0 flex flex-col">
 			<div className="py-[24px] px-[16px]">
-				<Link href="/">
+				<Link href="/" className="relative block w-[160px] h-[50px]">
 					<Image
 						src="/default-monochrome.svg"
 						alt="logo"
-						width={160}
-						height={50}
+						fill
+						style={{ objectFit: "contain" }}
+						priority
 					/>
 				</Link>
 			</div>

@@ -19,8 +19,8 @@ import {
 import { useUser } from "@/store";
 import ListView from "./_components/views/list/ListView";
 import TableView from "./_components/views/table/TableView";
+import { colors } from "@/utils/constants";
 
-const colors = ["#e6de0f", "#6d9e9b", "#ed9e9e"];
 const TaskPage = () => {
 	const { activeProject } = useProject();
 	const { user } = useUser();
@@ -54,7 +54,7 @@ const TaskPage = () => {
 												className="text-sm font-semibold"
 												style={{ background: colors[idx] }}
 											>
-												{member.user.firstname.charAt(0)}
+												{member?.user?.firstname?.charAt(0)}
 											</AvatarFallback>
 										</Avatar>
 									</TooltipTrigger>

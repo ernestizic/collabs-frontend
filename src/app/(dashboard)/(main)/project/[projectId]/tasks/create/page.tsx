@@ -23,26 +23,68 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { CalendarCog, Settings } from "lucide-react";
+import { CalendarCog, CheckIcon, Settings } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import Datepicker from "@/components/global/Datepicker";
 import { useState } from "react";
 import { taskPriorityList } from "@/utils/constants";
+import { useProject } from "@/store/useProject";
+import { Collaborator } from "@/utils/types/api/project";
+import { useUser } from "@/store";
+import { TaskPriority, TaskType } from "@/utils/types/api/task";
+import { useRouter, useSearchParams } from "next/navigation";
+import { createTask } from "@/utils/api/tasks";
+import { toast } from "sonner";
+import { AxiosError } from "axios";
+import { ApiError } from "@/utils/types";
 dayjs.extend(localizedFormat);
 
 const CreateTaskPage = () => {
+	const params = useSearchParams();
+	const router = useRouter()
+	const { activeProject } = useProject();
+	const { user } = useUser();
+	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [showStartDateSelect, setShowStartDateSelect] =
 		useState<boolean>(false);
+	const [selectedAssignees, setSelectedAssignees] = useState<Collaborator[]>(
+		[]
+	);
 	const [showEndDateSelect, setShowEndDateSelect] = useState<boolean>(false);
 	const [startDate, setStartDate] = useState<Date>();
 	const [endDate, setEndDate] = useState<Date>();
-	const [priority, setPriority] = useState<string>("");
+	const [priority, setPriority] = useState<TaskPriority>();
+	const [taskType, setTaskType] = useState<TaskType>("TASK");
+	const [createMore, setCreateMore] = useState<boolean>(false);
+	const columnId = params.get("column") ?? undefined;
+
+	const handleSelectAssignees = (
+		val: boolean | string,
+		member: Collaborator
+	) => {
+		if (val) {
+			setSelectedAssignees((prev) => [...prev, member]);
+		} else {
+			setSelectedAssignees((prev) =>
+				prev.filter((item) => item.id !== member.id)
+			);
+		}
+	};
+
+	const handleAssignYourself = () => {
+		const you = activeProject?.collaborators.find(
+			(item) => item.userId === user?.id
+		);
+		if (!you) return;
+		setSelectedAssignees((prev) => [...prev, you]);
+	};
 
 	const formSchema = z.object({
 		title: z
 			.string()
+			.nonempty("Project name is required")
 			.min(2, "Project name should be at least 2 character long"),
 		description: z.string(),
 	});
@@ -54,9 +96,41 @@ const CreateTaskPage = () => {
 		},
 	});
 
-	const handleSubmit = (values: z.infer<typeof formSchema>) => {
-		console.log(values);
+	const resetFields = () => {
+		form.reset();
+		setSelectedAssignees([]);
+		setPriority(undefined);
+		setTaskType("TASK");
+		setStartDate(undefined);
+		setEndDate(undefined);
 	};
+
+	const handleSubmit = async (values: z.infer<typeof formSchema>) => {
+		const payload = {
+			...values,
+			type: taskType,
+			assignees: selectedAssignees.length
+				? selectedAssignees.map((item) => item.id)
+				: undefined,
+			priority,
+			columnId,
+			startDate,
+			endDate,
+		};
+		setIsSubmitting(true);
+		try {
+			await createTask(payload);
+			setIsSubmitting(false);
+			resetFields();
+			toast.success("Task created");
+			if (!createMore) router.push(`/project/${activeProject?.id}/tasks`);
+		} catch (error) {
+			setIsSubmitting(false);
+			const apiError = error as AxiosError<ApiError>;
+			toast.error(apiError.response?.data?.message || apiError.message);
+		}
+	};
+
 	return (
 		<div className="max-2xl:px-[24px] py-[24px]">
 			<div className="2xl:w-[70%] m-[0px_auto] flex gap-8">
@@ -98,7 +172,19 @@ const CreateTaskPage = () => {
 									)}
 								/>
 							</div>
-							<Button type="submit" className="w-[200px] mt-8 h-10">
+							<div className="flex items-center gap-3 mt-3">
+								<Checkbox
+									id="createMore"
+									checked={createMore}
+									onCheckedChange={(val) => setCreateMore(val as boolean)}
+								/>
+								<Label htmlFor="createMore">Create more</Label>
+							</div>
+							<Button
+								type="submit"
+								className="w-[200px] mt-8 h-10"
+								loading={isSubmitting}
+							>
 								Create
 							</Button>
 						</form>
@@ -115,40 +201,68 @@ const CreateTaskPage = () => {
 									Assignees <Settings />
 								</Button>
 							</DropdownMenuTrigger>
-							<DropdownMenuContent className="min-w-[300px] py-2 px-3 border border-black/30">
+							<DropdownMenuContent className="min-w-[300px] max-h-[300px] py-2 px-3 border border-black/30">
 								<header className="text-sm font-semibold">
 									Assign up to 10 people to this task
 								</header>
 								<DropdownMenuSeparator />
 
 								<div className="mt-3 flex flex-col gap-2">
-									{Array.from({ length: 3 }).map((item, idx) => (
+									{activeProject?.collaborators.map((member) => (
 										<Label
-											key={idx}
+											key={member.id}
 											className="flex items-center gap-4 has-[[aria-checked=true]]:bg-blue-50 py-1 px-2"
 										>
 											<Checkbox
-												id={`toggle-${idx}`}
+												onCheckedChange={(val) =>
+													handleSelectAssignees(val, member)
+												}
+												checked={
+													!!selectedAssignees.find(
+														(item) => item.id === member.id
+													)
+												}
+												id={`toggle-${member.id}`}
 												className="data-[state=checked]:border-blue-600 data-[state=checked]:bg-blue-600 data-[state=checked]:text-white dark:data-[state=checked]:border-blue-700 dark:data-[state=checked]:bg-blue-700"
 											/>
 											<div className="flex items-center gap-2">
 												<Avatar className="size-6">
-													<AvatarImage src="https://github.com/shadcn.png" />
-													<AvatarFallback>CN</AvatarFallback>
+													<AvatarImage src="https://github" />
+													<AvatarFallback className="text-[10px] font-semibold bg-blue-100">
+														{member?.user?.firstname?.charAt(0)}
+														{member?.user?.lastname?.charAt(0)}
+													</AvatarFallback>
 												</Avatar>
-												ernestizic
+												{member.user.firstname} {member.user.lastname}
 											</div>
 										</Label>
 									))}
 								</div>
 							</DropdownMenuContent>
 						</DropdownMenu>
-						<div className="px-1">
-							No one -{" "}
-							<Button variant="link" className="py-0 px-4 h-auto">
-								Assign yourself
-							</Button>
-						</div>
+						{!selectedAssignees.length ? (
+							<div className="px-1">
+								No one -{" "}
+								<Button
+									variant="link"
+									className="py-0 px-4 h-auto"
+									onClick={handleAssignYourself}
+								>
+									Assign yourself
+								</Button>
+							</div>
+						) : (
+							<div className="flex gap-2">
+								{selectedAssignees?.map((a) => (
+									<div
+										key={a.id}
+										className="bg-blue-100 w-max rounded px-2 py-[2px]"
+									>
+										{a.user.firstname} {a.user.lastname}
+									</div>
+								))}
+							</div>
+						)}
 					</div>
 
 					<div className="text-sm border-b flex flex-col py-2 gap-2">
@@ -171,21 +285,27 @@ const CreateTaskPage = () => {
 									{taskPriorityList.map((item, idx) => (
 										<DropdownMenuItem
 											key={idx}
-											className="text-base capitalize"
+											className="text-base capitalize flex justify-between"
 											onClick={() => setPriority(item.title)}
 										>
-											<span
-												style={{ border: `3px solid ${item.color}` }}
-												className="rounded-full block size-[15px]"
-											/>
-											{item.title}
+											<div className="flex items-center gap-2">
+												<span
+													style={{ border: `3px solid ${item.color}` }}
+													className="rounded-full block size-[15px]"
+												/>
+												{item.title.toLowerCase()}
+											</div>
+
+											{priority === item.title && (
+												<CheckIcon className="text-emerald-600" />
+											)}
 										</DropdownMenuItem>
 									))}
 								</div>
 							</DropdownMenuContent>
 						</DropdownMenu>
 						<div className="px-1 capitalize">
-							{priority ?? "Not set"}
+							{priority?.toLowerCase() || "Not set"}
 						</div>
 					</div>
 
@@ -196,38 +316,35 @@ const CreateTaskPage = () => {
 									variant="ghost"
 									className="w-full h-[32px] justify-between px-1!"
 								>
-									Labels <Settings />
+									Type <Settings />
 								</Button>
 							</DropdownMenuTrigger>
 							<DropdownMenuContent className="min-w-[300px] py-2 px-3 border border-black/30">
 								<header className="text-sm font-semibold">
-									Assign up to 10 people to this task
+									Nature of task
 								</header>
 								<DropdownMenuSeparator />
 
 								<div className="mt-3 flex flex-col gap-2">
-									{Array.from({ length: 3 }).map((item, idx) => (
-										<Label
+									{["TASK", "BUG", "FEATURE"].map((item, idx: number) => (
+										<DropdownMenuItem
 											key={idx}
-											className="flex items-center gap-4 has-[[aria-checked=true]]:bg-blue-50 py-1 px-2"
+											className="text-base capitalize flex justify-between"
+											onClick={() => setTaskType(item as typeof taskType)}
 										>
-											<Checkbox
-												id={`toggle-${idx}`}
-												className="data-[state=checked]:border-blue-600 data-[state=checked]:bg-blue-600 data-[state=checked]:text-white dark:data-[state=checked]:border-blue-700 dark:data-[state=checked]:bg-blue-700"
-											/>
-											<div className="flex items-center gap-2">
-												<Avatar className="size-6">
-													<AvatarImage src="https://github.com/shadcn.png" />
-													<AvatarFallback>CN</AvatarFallback>
-												</Avatar>
-												ernestizic
-											</div>
-										</Label>
+											{item.toLowerCase()}
+
+											{taskType === item && (
+												<CheckIcon className="text-emerald-600" />
+											)}
+										</DropdownMenuItem>
 									))}
 								</div>
 							</DropdownMenuContent>
 						</DropdownMenu>
-						<div className="px-1">No label</div>
+						<div className="px-1 capitalize">
+							{taskType.toLowerCase() || "Not set"}
+						</div>
 					</div>
 
 					<div className="text-sm border-b flex flex-col py-2 gap-2">
@@ -252,7 +369,7 @@ const CreateTaskPage = () => {
 										setStartDate(date);
 										setShowStartDateSelect(false);
 									}}
-									disabled={{ before: new Date() }}
+									disabled={{ before: new Date(), after: endDate }}
 								/>
 							</DropdownMenuContent>
 						</DropdownMenu>
@@ -284,7 +401,10 @@ const CreateTaskPage = () => {
 										setEndDate(date);
 										setShowEndDateSelect(false);
 									}}
-									disabled={{ before: new Date() }}
+									disabled={[
+										{ before: new Date() },
+										...(startDate ? [{ before: startDate }] : []),
+									]}
 								/>
 							</DropdownMenuContent>
 						</DropdownMenu>

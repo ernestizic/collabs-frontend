@@ -1,4 +1,4 @@
-import { ApiMeta, PaginationType } from "..";
+import { ApiMeta, PaginationType, User } from "..";
 
 export interface CreateProjectPayload {
 	name: string;
@@ -26,13 +26,10 @@ export interface GetColumnsResponse extends ApiMeta {
 
 export interface Collaborator {
 	id: number;
-	role: "MEMBER";
+	role: "MEMBER" | "ADMIN";
 	userId: number;
 	projectId: number;
-	user: {
-		firstname: string;
-		lastname: string;
-	};
+	user: Partial<User>;
 }
 
 export interface Project {
@@ -51,6 +48,7 @@ export interface Column {
 	name: string;
 	description: string | null;
 	position: number;
+	taskCount: number;
 	identifier: string | null;
 	column_limit: number | null;
 	projectId: number;

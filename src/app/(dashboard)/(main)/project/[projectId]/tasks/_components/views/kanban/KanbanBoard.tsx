@@ -26,6 +26,12 @@ import {
 import { usePathname, useRouter } from "next/navigation";
 import { Column } from "@/utils/types/api/project";
 import { useModal } from "@/hooks/useModal";
+import { useInfiniteQuery } from "@tanstack/react-query";
+import { queryKeys } from "@/lib/queryKeys";
+import { fetchTasks } from "@/utils/api/tasks";
+import useInfiniteScroll from "@/hooks/useInfiniteScroll";
+import { Skeleton } from "@/components/ui/skeleton";
+import LoadMoreLoader from "@/components/global/LoadMoreLoader";
 
 interface BoardInterface {
 	board: Column;
@@ -41,6 +47,34 @@ const KanbanBoard = ({
 	const pathname = usePathname();
 	const router = useRouter();
 
+	const {
+		data,
+		isLoading,
+		fetchNextPage,
+		hasNextPage,
+		isFetching,
+		isFetchingNextPage,
+	} = useInfiniteQuery({
+		queryKey: queryKeys.tasksOnBoard(board.id),
+		queryFn: ({ pageParam }) => fetchTasks(pageParam, board.id),
+		initialPageParam: 1,
+		getNextPageParam: (lastPage, _, lastPageParam) => {
+			if (
+				lastPage.data.pagination.currentPage >=
+				lastPage.data.pagination.totalPages
+			) {
+				return undefined;
+			}
+			return lastPageParam + 1;
+		},
+	});
+
+	const { lastListElementRef } = useInfiniteScroll(
+		isFetching,
+		hasNextPage,
+		fetchNextPage
+	);
+
 	return (
 		<div className="h-full min-w-[350px] w-[350px] rounded-2xl bg-accent p-[16px] flex flex-col">
 			<div className="flex flex-col gap-2 pb-2">
@@ -52,7 +86,8 @@ const KanbanBoard = ({
 						/>
 						<span className="font-semibold text-gray-700">{board.name}</span>
 						<Badge className="bg-primary/8 text-black">
-							0{board.column_limit && `/${board.column_limit}`}
+							{board.taskCount}
+							{board.column_limit && `/${board.column_limit}`}
 						</Badge>
 					</div>
 					<div className="flex gap-2">
@@ -62,7 +97,9 @@ const KanbanBoard = ({
 									className="size-[28px]"
 									variant="ghost"
 									aria-label="Add task to this column"
-									onClick={() => router.push(`${pathname}/create?column=${1}`)}
+									onClick={() =>
+										router.push(`${pathname}/create?column=${board.id}`)
+									}
 								>
 									<Plus />
 								</Button>
@@ -108,7 +145,9 @@ const KanbanBoard = ({
 								</DropdownMenuItem>
 								<DropdownMenuItem
 									className="text-base"
-									onClick={() => openModal("updateColumnModal", { column: board })}
+									onClick={() =>
+										openModal("updateColumnModal", { column: board })
+									}
 								>
 									<PencilLine /> Edit details
 								</DropdownMenuItem>
@@ -143,14 +182,44 @@ const KanbanBoard = ({
 						</DropdownMenu>
 					</div>
 				</div>
-				<p className="text-sm text-[#000]/60">{board.description}</p>
+				<p
+					title={board.description ?? ""}
+					className="text-sm text-[#000]/60 truncate"
+				>
+					{board.description}
+				</p>
 			</div>
 
 			<div className="flex-1 overflow-auto flex flex-col gap-2">
-				{/* {Array.from({ length: 2 }).map((item, idx) => (
-					<TaskCard key={idx} />
-				))} */}
+				{isLoading
+					? Array.from({ length: 2 }).map((_, idx) => (
+							<div className="bg-white p-[8px] rounded border" key={idx}>
+								<Skeleton className="h-[12px] w-[100px]" />
+								<div className="flex flex-col gap-[3px] mt-4">
+									<Skeleton className="h-[12px] w-1/2" />
+									<Skeleton className="h-[12px] w-10/12" />
+								</div>
+								<div className="flex justify-between gap-[3px] mt-6">
+									<Skeleton className="h-[12px] w-[100px]" />
+									<Skeleton className="h-[12px] w-[100px]" />
+								</div>
+							</div>
+					  ))
+					: data?.pages.map((page) => {
+							return page.data.tasks.map((task, idx) => (
+								<TaskCard
+									key={task.id}
+									task={task}
+									ref={
+										page.data.tasks.length === idx + 1
+											? lastListElementRef
+											: null
+									}
+								/>
+							));
+					  })}
 			</div>
+			{isFetchingNextPage && <LoadMoreLoader />}
 		</div>
 	);
 };
