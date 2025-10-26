@@ -1,6 +1,7 @@
 import { pusher } from "@/lib/pusherClient";
 import { queryKeys } from "@/lib/queryKeys";
 import { Column } from "@/utils/types/api/project";
+import { Task } from "@/utils/types/api/task";
 import { useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 
@@ -36,6 +37,14 @@ const useProjectPusher = (projectId: number) => {
 				if (data) {
 					queryClient.invalidateQueries({
 						queryKey: queryKeys.projectBoards(data.projectId),
+					});
+				}
+			});
+
+			channel.bind("task-created", (data: Task) => {
+				if (data) {
+					queryClient.invalidateQueries({
+						queryKey: queryKeys.tasksOnBoard(data.columnId),
 					});
 				}
 			});

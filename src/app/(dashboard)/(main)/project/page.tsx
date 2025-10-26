@@ -1,13 +1,14 @@
 import { ProjectsResponse } from "@/utils/types/api/project";
-import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import Cookies from "js-cookie";
+import { useProject } from "@/store/useProject";
 
 const ProjectPage = async () => {
-	const cookieStore = await cookies();
-	const cookie = cookieStore.toString();
+	const activeProject = useProject.getState().activeProject;
 	const token = Cookies.get("access_token");
-	console.log(cookie);
+
+	if (activeProject) redirect(`/project/${activeProject.id}/tasks`);
+
 	try {
 		const res = await fetch(
 			`${process.env.NEXT_PUBLIC_API_BASE_URL}projects/user`,

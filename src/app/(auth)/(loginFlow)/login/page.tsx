@@ -52,7 +52,6 @@ const LoginPage = () => {
 
 		try {
 			const data = await login(values);
-			setIsLoading(false);
 			setUser(data.data);
 			setAccessToken(data.access_token);
 			router.push("/dashboard");
