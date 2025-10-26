@@ -20,11 +20,11 @@ import {
 	InputOTPSlot,
 } from "@/components/ui/input-otp";
 import { useRouter } from "next/navigation";
-import { resendEmailVerificationCode } from "@/utils/api/auth";
+import { resendEmailVerificationCode, verifyEmail } from "@/utils/api/auth";
 import { useUser } from "@/store";
 import { toast } from "sonner";
 import { ApiError } from "@/utils/types";
-import axios, { AxiosError } from "axios";
+import { AxiosError } from "axios";
 import { useState } from "react";
 
 const VerifyEmailPage = () => {
@@ -67,10 +67,10 @@ const VerifyEmailPage = () => {
 		if (!user) return;
 		setIsSubmitting(true);
 		try {
-			const res = await axios.post("/api/verify-email", { ...values, email: user?.email })
-			setUser(res.data.data);
-			toast.success(res.data.message ?? "Email verification successful");
-			router.push(`/`);
+			const data = await verifyEmail({ ...values, email: user?.email })
+			setUser(data.data);
+			toast.success(data.message ?? "Email verification successful");
+			router.push(`/dashboard`);
 		} catch (error) {
 			setIsSubmitting(false);
 			const err = error as AxiosError<ApiError>;

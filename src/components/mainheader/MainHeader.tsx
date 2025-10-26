@@ -17,18 +17,13 @@ import { logout } from "@/utils/api/auth";
 import { useUser } from "@/store";
 import { Separator } from "../ui/separator";
 import { LogOut, Settings } from "lucide-react";
-import { useQueryClient } from "@tanstack/react-query";
 
 const MainHeader = () => {
-	const { user, clearUser } = useUser();
-	const queryClient = useQueryClient();
+	const { user } = useUser();
 
 	const handleLogout = async () => {
 		try {
 			await logout();
-			clearUser();
-			queryClient.clear();
-			window.location.replace("/login");
 		} catch (error) {
 			console.log(error);
 		}

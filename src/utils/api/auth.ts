@@ -1,7 +1,47 @@
 import { axiosInstance } from "@/lib/axios";
-import { GetUserResponse, ResetPasswordPayload } from "../types/api/auth";
+import {
+	CreateUserPayload,
+	CreateUserResponse,
+	GetUserResponse,
+	ResetPasswordPayload,
+	SignInPayload,
+	verifyEmailPayload,
+} from "../types/api/auth";
 import { ApiMeta } from "../types";
-import axios from "axios";
+import { useUser } from "@/store";
+
+export const signup = async (
+	payload: CreateUserPayload
+): Promise<CreateUserResponse> => {
+	try {
+		const res = await axiosInstance.post(`auth/signup`, payload);
+		return res.data;
+	} catch (error) {
+		return Promise.reject(error);
+	}
+};
+
+export const verifyEmail = async (
+	payload: verifyEmailPayload
+): Promise<CreateUserResponse> => {
+	try {
+		const res = await axiosInstance.post(`auth/verify-code`, payload);
+		return res.data;
+	} catch (error) {
+		return Promise.reject(error);
+	}
+};
+
+export const login = async (
+	payload: SignInPayload
+): Promise<CreateUserResponse> => {
+	try {
+		const res = await axiosInstance.post(`auth/login`, payload);
+		return res.data;
+	} catch (error) {
+		return Promise.reject(error);
+	}
+};
 
 export const resendEmailVerificationCode = async (payload: {
 	email: string;
@@ -40,8 +80,11 @@ export const resetPassword = async (
 };
 
 export const logout = async () => {
+	const clearUser = useUser.getState().clearUser;
 	try {
-		const res = await axios.post(`/api/logout`);
+		const res = await axiosInstance.post(`auth/logout`);
+		clearUser();
+		window.location.replace("/login");
 		return res.data;
 	} catch (error) {
 		return Promise.reject(error);

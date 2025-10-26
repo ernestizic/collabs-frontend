@@ -25,8 +25,9 @@ import { Input } from "@/components/ui/input";
 import { useRouter } from "next/navigation";
 import { ApiError } from "@/utils/types";
 import { toast } from "sonner";
-import axios, { AxiosError } from "axios";
+import { AxiosError } from "axios";
 import { useUser } from "@/store";
+import { signup } from "@/utils/api/auth";
 
 const SignupPage = () => {
 	const { setUser } = useUser();
@@ -56,9 +57,9 @@ const SignupPage = () => {
 	const handleSubmit = async (values: z.infer<typeof formSchema>) => {
 		setIsLoading(true);
 		try {
-			const data = await axios.post("/api/sign-up", values);
+			const data = await signup(values);
 			setIsLoading(false);
-			setUser(data.data.data);
+			setUser(data.data);
 			router.push("/verify-email");
 		} catch (error) {
 			setIsLoading(false);

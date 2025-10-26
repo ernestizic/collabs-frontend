@@ -24,8 +24,9 @@ import {
 import { useRouter } from "next/navigation";
 import { useUser } from "@/store";
 import { toast } from "sonner";
-import axios, { AxiosError } from "axios";
+import { AxiosError } from "axios";
 import { ApiError } from "@/utils/types";
+import { login } from "@/utils/api/auth";
 
 const LoginPage = () => {
 	const [isLoading, setIsLoading] = useState(false);
@@ -50,12 +51,9 @@ const LoginPage = () => {
 		setIsLoading(true);
 
 		try {
-			const data = await axios.post("/api/login", values);
+			const data = await login(values);
 			setIsLoading(false);
-			if (data.data.error) {
-				toast.error(data.data?.message || "An error occurred");
-			}
-			setUser(data.data.data);
+			setUser(data.data);
 			router.push("/dashboard");
 		} catch (error) {
 			setIsLoading(false);
