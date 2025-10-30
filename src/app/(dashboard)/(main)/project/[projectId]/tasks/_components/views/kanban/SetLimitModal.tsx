@@ -49,6 +49,10 @@ const SetLimitModal = ({ onClose, column }: PromptProps) => {
 	});
 
 	const onSubmit = async (values: z.infer<typeof formSchema>) => {
+		if (column.column_limit && Number(values.limit) <= column?.taskCount) {
+			toast.error("Limit canot be less than the current task count on column");
+			return;
+		}
 		setLimitMutation.mutate({ column_limit: Number(values.limit) });
 	};
 

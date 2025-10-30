@@ -1,13 +1,12 @@
 "use client";
 
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from "../ui/select";
-// import Searchbar from "../globalSearch/Searchbar";
+// import {
+// 	Select,
+// 	SelectContent,
+// 	SelectItem,
+// 	SelectTrigger,
+// 	SelectValue,
+// } from "../ui/select";
 import Notification from "../notification/Notification";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
@@ -31,9 +30,7 @@ const MainHeader = () => {
 	return (
 		<div className="h-[72px] fixed z-10 top-0 w-[calc(100%-272px)] bg-white border-b flex items-center justify-between px-[24px]">
 			<div className="flex items-center">
-				{/* <Searchbar /> */}
-
-				<Select>
+				{/* <Select>
 					<SelectTrigger className="min-w-[180px] justify-start border-none shadow-none [&_svg:not([class*='text-'])]:text-[#000] [&_svg:not([class*='text-'])]:size-[18px]">
 						<div className="bg-primary/20 size-[30px] flex items-center justify-center rounded">
 							C
@@ -45,7 +42,7 @@ const MainHeader = () => {
 						<SelectItem value="dark">Collabs Marketing</SelectItem>
 						<SelectItem value="system">Sembly App production</SelectItem>
 					</SelectContent>
-				</Select>
+				</Select> */}
 			</div>
 			<div className="flex items-center gap-10">
 				<Notification />

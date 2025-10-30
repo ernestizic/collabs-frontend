@@ -46,8 +46,20 @@ const TaskCard = forwardRef<HTMLDivElement, TaskCardProps>(({ task }, ref) => {
 	const pathname = usePathname();
 	const { redirectWithParams, localParamState } = useQueryParams();
 
+	const handleOpenTask = () => {
+		redirectWithParams(pathname, {
+			...localParamState,
+			pane: "task",
+			taskId: task.id,
+		});
+	};
+
 	return (
-		<div ref={ref} className="bg-white p-[8px] rounded border">
+		<div
+			ref={ref}
+			className="bg-white p-[8px] rounded border cursor-default"
+			onClick={handleOpenTask}
+		>
 			<div className="flex items-center justify-between mb-2">
 				{task.priority ? (
 					<Badge
@@ -67,28 +79,20 @@ const TaskCard = forwardRef<HTMLDivElement, TaskCardProps>(({ task }, ref) => {
 					</div>
 				)}
 
-				<DropdownMenu modal={false}>
+				<DropdownMenu>
 					<DropdownMenuTrigger asChild>
 						<Button
 							className="size-[28px]"
 							variant="ghost"
 							aria-label="More options"
 							title="More options"
+							onClick={(e)=> e.stopPropagation()}
 						>
 							<Ellipsis />
 						</Button>
 					</DropdownMenuTrigger>
-					<DropdownMenuContent>
-						<DropdownMenuItem
-							className="text-base"
-							onClick={() =>
-								redirectWithParams(pathname, {
-									...localParamState,
-									pane: "task",
-									taskId: task.id,
-								})
-							}
-						>
+					<DropdownMenuContent onClick={(e)=> e.stopPropagation()}>
+						<DropdownMenuItem className="text-base" onClick={handleOpenTask}>
 							<Expand /> View task
 						</DropdownMenuItem>
 						<DropdownMenuSub>
@@ -111,19 +115,9 @@ const TaskCard = forwardRef<HTMLDivElement, TaskCardProps>(({ task }, ref) => {
 					</DropdownMenuContent>
 				</DropdownMenu>
 			</div>
-			<Button
-				onClick={() =>
-					redirectWithParams(pathname, {
-						...localParamState,
-						pane: "task",
-						taskId: task.id,
-					})
-				}
-				variant="link"
-				className="font-semibold mb-[3px] truncate hover:underline hover:text-primary p-0 h-auto"
-			>
+			<p className="mb-[3px] truncate hover:text-primary p-0 h-auto">
 				{task.title}
-			</Button>
+			</p>
 			<p className="text-sm text-black/70 truncate">{task.description}</p>
 
 			<div className="max-2xl:hidden my-2 flex items-center justify-between">
