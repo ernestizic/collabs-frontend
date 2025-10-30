@@ -11,8 +11,8 @@ const albertSans = Albert_Sans({
 });
 
 export const metadata: Metadata = {
-	title: "Collabs",
-	description: "Your one-stop collaboration app for your team.",
+	title: "CollabsHQ",
+	description: "A collaboration tool for you and your team.",
 };
 
 export default function RootLayout({

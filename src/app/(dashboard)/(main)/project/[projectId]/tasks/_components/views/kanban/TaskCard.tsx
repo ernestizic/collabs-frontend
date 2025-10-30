@@ -143,9 +143,9 @@ const TaskCard = forwardRef<HTMLDivElement, TaskCardProps>(({ task }, ref) => {
 								</Avatar>
 							</TooltipTrigger>
 							<TooltipContent side="bottom">
-								{member.collaborator.userId === user?.id
+								{member.collaborator?.userId === user?.id
 									? "You"
-									: member.collaborator.user.firstname}
+									: member.collaborator?.user.firstname}
 							</TooltipContent>
 						</Tooltip>
 					))}

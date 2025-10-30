@@ -32,7 +32,7 @@ const ProjectInitializer = ({ children }: { children: ReactNode }) => {
 	if (isLoading)
 		return (
 			<div className="h-[calc(100vh-72px)] w-full flex items-center justify-center bg-primary/10">
-				<BarLoader width={150} />
+				<BarLoader width={150} color="var(--primary)" className="bg-accent"  />
 			</div>
 		);
 

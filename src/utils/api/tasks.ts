@@ -2,6 +2,7 @@ import { axiosInstance } from "@/lib/axios";
 import {
 	CreateTaskPayload,
 	CreateTaskResponse,
+	FetchSingleTaskResponse,
 	FetchTasksResponse,
 } from "../types/api/task";
 import { useProject } from "@/store/useProject";
@@ -37,6 +38,21 @@ export const fetchTasks = async (
 		const url = `projects/${projectId}/tasks?${params.toString()}`;
 
 		const res = await axiosInstance.get(url);
+		return res.data;
+	} catch (error) {
+		return Promise.reject(error);
+	}
+};
+
+export const getTaskById = async (
+	taskId: string
+): Promise<FetchSingleTaskResponse> => {
+	const projectId = useProject.getState().activeProject?.id;
+
+	try {
+		const res = await axiosInstance.get(
+			`projects/${projectId}/tasks/${taskId}`
+		);
 		return res.data;
 	} catch (error) {
 		return Promise.reject(error);

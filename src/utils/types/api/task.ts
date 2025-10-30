@@ -1,5 +1,5 @@
 import { ApiMeta, PaginationType } from "..";
-import { Collaborator } from "./project";
+import { Collaborator, Column } from "./project";
 
 export type TaskType = "TASK" | "BUG" | "FEATURE";
 
@@ -17,12 +17,14 @@ export type Task = {
 	createdAt: Date;
 	updatedAt: Date;
 	assignees: Assignee[];
+	creatorId?: number;
+	column: Partial<Column>
 };
 
 export interface Assignee {
 	taskId: string;
 	collaboratorId: number;
-	collaborator: Collaborator;
+	collaborator?: Collaborator;
 }
 
 export type CreateTaskPayload = {
@@ -45,4 +47,8 @@ export interface FetchTasksResponse extends ApiMeta {
 		pagination: PaginationType;
 		tasks: Task[];
 	};
+}
+
+export interface FetchSingleTaskResponse extends ApiMeta {
+	data: Task;
 }

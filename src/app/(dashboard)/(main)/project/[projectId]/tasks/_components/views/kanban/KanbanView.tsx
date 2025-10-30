@@ -138,7 +138,7 @@ const KanbanView = () => {
 	if (isPending) {
 		return (
 			<div className="h-full w-full flex items-center justify-center flex-col">
-				<BarLoader width={150} className="rounded-2xl" />
+				<BarLoader width={150} color="var(--primary)" className="bg-accent rounded-2xl"  />
 				Loading...
 			</div>
 		);
