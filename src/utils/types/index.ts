@@ -7,6 +7,8 @@ export type User = {
 	createdAt: Date;
 };
 
+export type MemberRole = "ADMIN" | "MEMBER"
+
 export type ApiMeta = {
 	status: boolean;
 	message: string;

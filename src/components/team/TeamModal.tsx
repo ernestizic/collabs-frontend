@@ -29,14 +29,52 @@ import {
 } from "@/components/ui/select";
 import { useState } from "react";
 import MembersList from "./MembersList";
+import { useProject } from "@/store/useProject";
+import { sendInvite } from "@/utils/api/invites";
+import { ApiError, MemberRole } from "@/utils/types";
+import { useMutation } from "@tanstack/react-query";
+import { SendInvitePayload } from "@/utils/types/api/project";
+import { toast } from "sonner";
+import { AxiosError } from "axios";
+
+const roles = ["Admin", "Member"];
 
 const TeamModal = () => {
+	const { activeProject } = useProject();
 	const [openModal, setOpenModal] = useState(false);
 
 	const formSchema = z.object({
 		email: z.email().min(1, "Email is required"),
 		role: z.string().min(1, "Role is required"),
 	});
+
+	const sendInviteMutation = useMutation({
+		mutationFn: (payload: SendInvitePayload) => sendInvite(payload),
+		onSuccess(data) {
+			toast.success(data.message);
+			form.reset();
+		},
+		onError(error) {
+			const err = error as AxiosError<ApiError>;
+			toast.error(err.response?.data.message);
+		},
+	});
+
+	const handleSubmit = async (values: z.infer<typeof formSchema>) => {
+		if (!activeProject) return;
+
+		const payload = {
+			...values,
+			role: values.role.toUpperCase() as MemberRole,
+			projectId: activeProject?.id,
+		};
+		sendInviteMutation.mutate(payload);
+	};
+
+	const closeModal = () => {
+		form.reset();
+		setOpenModal(false);
+	};
 
 	const form = useForm<z.infer<typeof formSchema>>({
 		resolver: zodResolver(formSchema),
@@ -46,9 +84,6 @@ const TeamModal = () => {
 		},
 	});
 
-	const handleSubmit = (values: z.infer<typeof formSchema>) => {
-		console.log(values);
-	};
 	return (
 		<Dialog open={openModal} onOpenChange={setOpenModal}>
 			<DialogTrigger asChild>
@@ -69,7 +104,7 @@ const TeamModal = () => {
 
 				<div className="flex items-center justify-between border-b py-[16px] px-[24px] bg-white sticky top-0 z-4">
 					<header className="text-xl font-semibold">Invite members</header>
-					<Button variant="ghost" onClick={() => setOpenModal(false)}>
+					<Button variant="ghost" onClick={closeModal}>
 						<X />
 					</Button>
 				</div>
@@ -77,7 +112,7 @@ const TeamModal = () => {
 				<div className="px-[24px] py-6">
 					<div className="flex gap-15">
 						<div className="w-[30%] text-gray-600">
-							<p>Unused invitations expire after a period of 30 days.</p>
+							<p>Unused invitations expire after a period of 7 days.</p>
 						</div>
 
 						<div className="flex-1">
@@ -116,15 +151,11 @@ const TeamModal = () => {
 															</SelectTrigger>
 														</FormControl>
 														<SelectContent>
-															<SelectItem value="m@example.com">
-																m@example.com
-															</SelectItem>
-															<SelectItem value="m@google.com">
-																m@google.com
-															</SelectItem>
-															<SelectItem value="m@support.com">
-																m@support.com
-															</SelectItem>
+															{roles?.map((role) => (
+																<SelectItem key={role} value={role}>
+																	{role}
+																</SelectItem>
+															))}
 														</SelectContent>
 													</Select>
 
@@ -134,7 +165,12 @@ const TeamModal = () => {
 										/>
 									</div>
 
-									<Button type="submit" className="w-full mt-8 h-10">
+									<Button
+										disabled={!form.formState.isValid}
+										loading={sendInviteMutation.isPending}
+										type="submit"
+										className="w-full mt-8 h-10"
+									>
 										Submit
 									</Button>
 								</form>
@@ -148,8 +184,8 @@ const TeamModal = () => {
 
 						<div className="flex gap-15 mt-[14px]">
 							<div className="w-[30%] flex flex-col gap-6 text-gray-600">
-								<p>Admins can manage everything</p>
-								<p>Contributors can manage some things</p>
+								<p>Admins manage everything</p>
+								<p>Contributors can do a couple things</p>
 							</div>
 							<div className="flex-1">
 								<MembersList />
