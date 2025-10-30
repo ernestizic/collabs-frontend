@@ -25,7 +25,7 @@ const CreateProjectPage = () => {
 	const queryClient = useQueryClient();
 	const router = useRouter();
 	const formSchema = z.object({
-		name: z.string(),
+		name: z.string().nonempty("Enter Project name"),
 		description: z
 			.string()
 			.max(600, "You have exceeded the max length for this field"),
@@ -100,6 +100,7 @@ const CreateProjectPage = () => {
 							type="submit"
 							className="w-full mt-8 h-10"
 							loading={createProjectMutation.isPending}
+							disabled={!form.formState.isValid}
 						>
 							Submit
 						</Button>

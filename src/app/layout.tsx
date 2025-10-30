@@ -26,7 +26,7 @@ export default function RootLayout({
 				<ModalContextProvider>
 					<Providers>{children}</Providers>
 				</ModalContextProvider>
-				<Toaster richColors />
+				<Toaster richColors duration={12000} />
 			</body>
 		</html>
 	);
