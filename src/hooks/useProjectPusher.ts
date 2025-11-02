@@ -1,12 +1,15 @@
 import { pusher } from "@/lib/pusherClient";
 import { queryKeys } from "@/lib/queryKeys";
-import { Column } from "@/utils/types/api/project";
+import { useProject } from "@/store/useProject";
+import { Column, Member } from "@/utils/types/api/project";
 import { Task } from "@/utils/types/api/task";
 import { useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 
 const useProjectPusher = (projectId: number) => {
+	const { resetProject } = useProject();
 	const queryClient = useQueryClient();
+
 	useEffect(() => {
 		if (!projectId) return;
 		const channel = pusher.subscribe(`private-project-${projectId}`);
@@ -48,13 +51,19 @@ const useProjectPusher = (projectId: number) => {
 					});
 				}
 			});
+
+			channel.bind("invite-accepted", (data: Member) => {
+				if (data) {
+					resetProject(data.projectId)
+				}
+			});
 		});
 
 		return () => {
 			channel.unbind_all();
 			channel.unsubscribe();
 		};
-	}, [projectId, queryClient]);
+	}, [projectId, queryClient, resetProject]);
 };
 
 export default useProjectPusher;

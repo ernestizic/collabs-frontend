@@ -23,7 +23,7 @@ export default function RootLayout({
 		<html lang="en">
 			<body className={`${albertSans.className} antialiased`}>
 				<Providers>{children}</Providers>
-				<Toaster richColors duration={12000} />
+				<Toaster richColors duration={8000} />
 			</body>
 		</html>
 	);

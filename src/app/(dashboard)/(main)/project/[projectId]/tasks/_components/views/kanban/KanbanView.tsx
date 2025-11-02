@@ -9,7 +9,6 @@ import NoBoardState from "./NoBoardState";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { useModal } from "@/hooks/useModal";
-import useProjectPusher from "@/hooks/useProjectPusher";
 import { BarLoader } from "react-spinners";
 import {
 	Tooltip,
@@ -26,7 +25,6 @@ const KanbanView = () => {
 	const { openModal } = useModal();
 	const { projectId } = useParams();
 	const queryClient = useQueryClient();
-	useProjectPusher(Number(projectId));
 
 	const { isPending, data, isError, refetch } = useQuery({
 		queryKey: queryKeys.projectBoards(Number(projectId)),

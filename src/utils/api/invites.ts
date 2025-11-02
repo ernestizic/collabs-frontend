@@ -6,7 +6,7 @@ export const sendInvite = async (
 	payload: SendInvitePayload
 ): Promise<ApiMeta> => {
 	try {
-		const res = await axiosInstance.post(`projects/invite-user`, payload);
+		const res = await axiosInstance.post(`members/invite-user`, payload);
 		return res.data;
 	} catch (e) {
 		throw e;

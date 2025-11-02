@@ -1,3 +1,4 @@
+import { getProject } from "@/utils/api/project";
 import { Project } from "@/utils/types/api/project";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
@@ -8,6 +9,7 @@ type State = {
 
 type Actions = {
 	setActiveProject: (project: Project) => void;
+	resetProject: (projectId: number) => void;
 };
 
 const initState = {
@@ -19,6 +21,10 @@ export const useProject = create<State & Actions>()(
 		(set) => ({
 			...initState,
 			setActiveProject: (project) => set(() => ({ activeProject: project })),
+			resetProject: async (id) => {
+				const res = await getProject(id);
+				set({ activeProject: res.data });
+			},
 		}),
 		{
 			name: "collabs-active-project",

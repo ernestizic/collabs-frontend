@@ -17,7 +17,7 @@ const AcceptUserPage = async ({ searchParams }: AcceptUserPageProps) => {
   let data;
 
 	try {
-		const res = await fetch(`${baseUrl}projects/accept-invite?code=${code}`, {
+		const res = await fetch(`${baseUrl}members/accept-invite?code=${code}`, {
 			method: "POST",
 			headers: {
 				Authorization: `Bearer ${token}`,

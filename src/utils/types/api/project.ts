@@ -78,11 +78,12 @@ export interface SendInvitePayload {
 	role: MemberRole;
 }
 
+export interface Member {
+	id: number;
+	role: MemberRole;
+	userId: number;
+	projectId: number;
+}
 export interface acceptInviteResponse extends ApiMeta {
-	data: {
-		id: number;
-		role: MemberRole;
-		userId: number;
-		projectId: number;
-	};
+	data: Member;
 }

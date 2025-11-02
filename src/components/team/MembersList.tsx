@@ -75,7 +75,6 @@ const MembersList = () => {
 				<TabsList className="border-b w-full rounded-none bg-white h-[40px]">
 					<TabsTrigger value="admins">Admins</TabsTrigger>
 					<TabsTrigger value="contributors">Contributors</TabsTrigger>
-					<TabsTrigger value="invites">Pending invites</TabsTrigger>
 				</TabsList>
 				<TabsContent value="admins">
 					<AdminList />
@@ -83,7 +82,6 @@ const MembersList = () => {
 				<TabsContent value="contributors">
 					<ContributorList />
 				</TabsContent>
-				<TabsContent value="invites">Change your password here.</TabsContent>
 			</Tabs>
 		</div>
 	);
