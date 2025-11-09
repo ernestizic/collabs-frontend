@@ -83,6 +83,7 @@ export interface Member {
 	role: MemberRole;
 	userId: number;
 	projectId: number;
+	user?: Partial<User>
 }
 export interface acceptInviteResponse extends ApiMeta {
 	data: Member;
